@@ -1,24 +1,13 @@
-//#include <gpio.h>
-#include "testConfig.h"
+#include <gpio.h>
 #include <iostream>
-#include <functional>
-
-#define LED_PIN 14
+#define LED_PIN 2
 
 int main() {
-	if (argc < 2) {
-    // report version
-    std::cout << " Version " << Tutorial_VERSION_MAJOR << "."
-              << Tutorial_VERSION_MINOR << std::endl;
-  	}
-	/*pinMode(LED_PIN, HIGH);
-
-	while(1) {
-		digitalWrite(LED_PIN, HIGH);
-		delay_1s();
-		digitalWrite(LED_PIN, LOW);
-		delay_1s();
-	}*/
+	GPEN_SET = (1<<5);
+   	GPO_SET = (1<<5);
+   	while(1) {
+	
+	}
 }
 
 
