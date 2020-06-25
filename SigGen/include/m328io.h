@@ -2,7 +2,7 @@
 #define M328IO_H
 #include <stdint.h>
 //cpu clock frequency
-#define F_CPU 8000000UL
+#define F_CPU 16000000UL
 //pin io types
 #define INPUT 0
 #define OUTPUT 1
@@ -32,6 +32,13 @@
 
 #define TIMSK0 REG_DEF(0x6E)
 #define TIMSK1 REG_DEF(0x6F)
+
+#define UCSR0A REG_DEF(0xC0)
+#define UCSR0B REG_DEF(0xC1)
+#define UCSR0C REG_DEF(0xC2)
+#define UBRR0L REG_DEF(0xC4)
+#define UBRR0H REG_DEF(0xC5)
+#define UDR0 REG_DEF(0xC6)
 
 
 

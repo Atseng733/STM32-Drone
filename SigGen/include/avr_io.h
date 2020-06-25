@@ -4,7 +4,7 @@
 #include <m328io.h>
 
 //set pin to input output or input_pullup
-void pinMode(unsigned char pin, unsigned char mode);
+void pinMode(uint8_t pin, uint8_t mode);
 //set a pin output low or high
 void digitalWrite(uint8_t pin, uint8_t mode);
 //read a pin's output

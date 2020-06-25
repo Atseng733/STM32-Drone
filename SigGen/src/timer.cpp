@@ -22,10 +22,10 @@ void timer_init() {
 
 //return total elapsed time in milliseconds
 uint32_t millis() {
-	#ifdef INIT
+	#ifdef TIMER_INIT
 	#else 
 	timer_init();
-	#define INIT 1
+	#define TIMER_INIT 1
 	#endif
 
 	return _millis;

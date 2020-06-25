@@ -1,7 +1,7 @@
 #include <avr_io.h>
 
 //sets a pin's state by writing to DDR and PORT registers
-void pinMode(unsigned char pin, unsigned char mode) {
+void pinMode(uint8_t pin, uint8_t mode) {
 	switch(pin) {
 		//digital pins D0...D7
 		case 0 ... 7:
