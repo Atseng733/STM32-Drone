@@ -1,8 +1,8 @@
 #include <main.h>
 
 int main() {
+	usart_test();
 	while(1) {
-		//printc('C');
-		debug_flash();
+		
 	}
 }
