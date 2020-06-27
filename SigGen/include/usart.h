@@ -5,7 +5,7 @@
 #include <stdint.h>
 //default baudrate
 #ifndef USART_BAUD 
-#define USART_BAUD 9600
+#define USART_BAUD 19200
 #endif
 //ubrr register value
 #define UBRR_VALUE ((F_CPU / (USART_BAUD * 16UL)) - 1)

@@ -33,6 +33,19 @@
 #define TIMSK0 REG_DEF(0x6E)
 #define TIMSK1 REG_DEF(0x6F)
 
+#define TWCR REG_DEF(0xBC)
+#define TWINT 7
+#define TWEA  6
+#define TWSTA 5
+#define TWSTO 4
+#define TWWC  3
+#define TWEN  2
+#define TWIE  0
+#define TWDR REG_DEF(0xBB)
+#define TWAR REG_DEF(0xBA)
+#define TWSR REG_DEF(0xB9)
+#define TWBR REG_DEF(0xB8)
+
 #define UCSR0A REG_DEF(0xC0)
 #define UCSR0B REG_DEF(0xC1)
 #define UCSR0C REG_DEF(0xC2)
