@@ -6,16 +6,16 @@ char* index;
 bool transmitting = false;
 
 ISR(USART_UDRE_vect) {
-	if(*(index+1) != 0) {
+	if(*(index) != 0) {
 		UDR0 = *index;
 		index++;
 	}
 	else {
 		UCSR0B &= ~(1<<5);
+		UCSR0B &= ~(1<<3);
 		transmitting = false;
-		
 	}
-	delay(10);
+	delay(1);
 }
 
 void usart_init() {
@@ -32,27 +32,34 @@ void usart_test() {
 	print("Testing USART communication");
 }
 
+void start_transmission() {
+	usart_init();
+}
+
 void printc(uint8_t c) {
 	#ifdef USART_INIT
 	#else
 	usart_init();
 	#define USART_INIT 1
 	#endif
+	
 	while(!(UCSR0A & (1<<5)));
 	//send data
 	UDR0 = c;
 }
 
 void print(char str[]) {
-	//#ifdef USART_INIT
-	//#else
+	#ifdef USART_INIT
+	#else
 	usart_init();
-	//#define USART_INIT 1
-	//#endif
+	#define USART_INIT 1
+	#endif
+
 	if(transmitting == false) {
-		//UCSR0B |= (1<<5);
 		transmitting = true;
 		index = str;
-		printc(str[0]);
+		//UCSR0B = (1<<5);
+		//printc(str[0]);
+		usart_init();
 	}
 }

@@ -6,5 +6,6 @@
 #include <timer.h>
 #include <usart.h>
 #include <debug.h>
+#include <ssd1306.h>
 
 #endif

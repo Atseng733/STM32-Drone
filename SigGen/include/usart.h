@@ -12,6 +12,7 @@
 
 void usart_init();
 void usart_test();
+void start_transmission();
 void printc(uint8_t c);
 void printcint(uint8_t c);
 void print(char str[]);

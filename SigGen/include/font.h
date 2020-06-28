@@ -1,5 +1,5 @@
-#ifndef FONT_H_
-#define FONT_H_
+#ifndef FONT_H
+#define FONT_H
 #include <avr/pgmspace.h>
 
 const unsigned char ASCII5x7[] PROGMEM = {
@@ -105,3 +105,5 @@ const unsigned char ASCII5x7[] PROGMEM = {
 	0x08, 0x1C, 0x2A, 0x08, 0x08, // <- (ALT + 0135) ‡
 	0x00, 0x00, 0x07, 0x05, 0x07  // °
 };
+
+#endif
