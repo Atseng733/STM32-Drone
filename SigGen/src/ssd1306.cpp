@@ -5,12 +5,9 @@
  *  Author: Anthony
  */ 
 
-#include "ssd1306.h"
-#include <usart.h>
-#include <stdlib.h>
-char str2[4];
+#include <ssd1306.h>
 
-unsigned char buffer[0x200] = {
+uint8_t buffer[0x200] = {
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
 	0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -47,24 +44,21 @@ unsigned char buffer[0x200] = {
 
 //0x11,0x11,0x0a,0x0a,0x04
 
-ssd1306::ssd1306() {
+ssd1306::ssd1306(uint8_t sAddr) : addr(sAddr) {
 	CURSOR_LOC = 0;
 	text_size = 1;
 }
 
-void ssd1306::ssd1306_command(unsigned char c)
+void ssd1306::ssd1306_command(uint8_t c)
 {
 	// I2C
-	unsigned char control = 0x00;   // Co = 0, D/C = 0
-	TWI_Write(i2caddr, control, c); //Set direction
+	uint8_t control = 0x00;   // Co = 0, D/C = 0
+	TWI_Write(addr, control, c); //Set direction
 
 }
 
-void ssd1306::begin(unsigned char _i2caddr = 0x3C)
+void ssd1306::begin()
 {
-	
-	i2caddr = _i2caddr;
-
 	// Init sequence
 	ssd1306_command(SSD1306_DISPLAYOFF);                    // 0xAE
 	ssd1306_command(SSD1306_SETDISPLAYCLOCKDIV);            // 0xD5
@@ -118,7 +112,7 @@ void ssd1306::display(void)
 		//Serial.println(TWBR, DEC);
 		//Serial.println(TWSR & 0x3, DEC);
 		TWI_Start();
-		TWI_Send(i2caddr<<1);
+		TWI_Send(addr<<1);
 		TWI_Send(0x40);
 		for(int i = 0; i < 512; i++) {
 			TWI_Send(buffer[i]);
@@ -144,12 +138,12 @@ void ssd1306::clearDisplay() {
 
 void ssd1306::print(char str[]) {
 	int memloc;				//size 1 text variables
-	unsigned char k = 0;
+	uint8_t k = 0;
 	
-	unsigned char cf;		//size 2 text variables
-	unsigned char cb;
-	unsigned char b1;
-	unsigned char b2;
+	uint8_t cf;		//size 2 text variables
+	uint8_t cb;
+	uint8_t b1;
+	uint8_t b2;
 	
 	switch(text_size) {
 		case 1:
@@ -174,7 +168,7 @@ void ssd1306::print(char str[]) {
 					cf = pgm_read_byte(&(ASCII5x7[0]) + memloc + j);
 					cb = cf & 0x0F;
 					cf >>= 4;
-					for(unsigned char l = 0; l < 4; l++) {
+					for(uint8_t l = 0; l < 4; l++) {
 						if(cf & 0x08) {
 							b1 |= 0x03;
 						}
@@ -212,18 +206,18 @@ void ssd1306::print(char str[]) {
 	}
 }
 
-void ssd1306::setCursor(unsigned char col, unsigned char row) {
+void ssd1306::setCursor(uint8_t col, uint8_t row) {
 	CURSOR_LOC = row*128 + col;
 	CURR_ROW = CURSOR_LOC/128;
 	CURR_COL = CURSOR_LOC%128;
 }
 
-void ssd1306::setTextSize(unsigned char size) {
+void ssd1306::setTextSize(uint8_t size) {
 	text_size = size;
 }
 
-unsigned int ssd1306::inc_CURSOR_LOC(unsigned char inc) {
-	unsigned int ret = CURSOR_LOC;
+uint16_t ssd1306::inc_CURSOR_LOC(uint8_t inc) {
+	uint16_t ret = CURSOR_LOC;
 	CURSOR_LOC += inc;
 	if(CURSOR_LOC > 511) {
 		CURSOR_LOC = CURSOR_LOC-512;

@@ -12,28 +12,29 @@
 #include <avr/pgmspace.h>
 #include <font.h>
 #include <twi.h>
+#include <stdint.h>
 
 class ssd1306 {
 	private:
-	unsigned char i2caddr;
-	unsigned int inc_CURSOR_LOC(unsigned char inc);
+	const uint8_t addr;
+	uint16_t inc_CURSOR_LOC(uint8_t inc);
 	public:
-	ssd1306();
-	unsigned int CURSOR_LOC;
-	unsigned char CURR_ROW;
-	unsigned char CURR_COL;
-	unsigned char text_size;
-	void ssd1306_command(unsigned char c);
-	void begin(unsigned char i2caddr);
+	ssd1306(uint8_t sAddr);
+	uint16_t CURSOR_LOC;
+	uint8_t CURR_ROW;
+	uint8_t CURR_COL;
+	uint8_t text_size;
+	void ssd1306_command(uint8_t c);
+	void begin();
 	void clearDisplay(void);
 	void display(void) ;
 	
 	void print(char str[]);
-	void setCursor(unsigned char col, unsigned char row);
-	void setTextSize(unsigned char size);
+	void setCursor(uint8_t col, uint8_t row);
+	void setTextSize(uint8_t size);
 };
 
-extern unsigned char buffer[0x200];
+extern uint8_t buffer[0x200];
 
 #define SSD1306_SWITCHCAPVCC 0x2
 

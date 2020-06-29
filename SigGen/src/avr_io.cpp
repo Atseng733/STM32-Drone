@@ -125,8 +125,8 @@ uint8_t digitalRead(uint8_t PIN) {
 	return 0;
 }
 
-/*void attachExInterrupt(unsigned char PIN, void(*userFunc)(void), unsigned char INT_TYPE) {
-	if(PIN == 2) {
+void attachExInterrupt(uint8_t pin, void(*userFunc)(void), unsigned char INT_TYPE) {
+	if(pin == 2) {
 		switch(INT_TYPE) {
 			case ON_LOW:
 			EICRA &= ~(1<<ISC00);
@@ -147,7 +147,7 @@ uint8_t digitalRead(uint8_t PIN) {
 		}
 		EIMSK |= (1<<INT0);
 	}
-	else if(PIN == 3) 
+	else if(pin == 3) 
 	{
 		switch(INT_TYPE) 
 		{
@@ -171,4 +171,4 @@ uint8_t digitalRead(uint8_t PIN) {
 		EIMSK |= (1<<INT1);
 	}
 	sei();
-}*/
+}

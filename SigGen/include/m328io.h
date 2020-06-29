@@ -11,6 +11,10 @@
 #define LOW 0
 #define HIGH 1
 //interrupt types
+#define ON_LOW 0b00
+#define CHANGE 0b01
+#define RISING_EDGE 0b10
+#define FALLING_EDGE 0b11
 
 //special function registers
 #define REG_DEF(addr) *((volatile uint8_t*)(addr))

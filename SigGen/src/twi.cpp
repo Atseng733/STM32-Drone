@@ -2,31 +2,30 @@
 #include <usart.h>
 #include <stdlib.h>
 #include <usart.h>
-
-char str[10];
-
+char str[16];
 void TWI_Init() {
-	print("TWI init");
+	//print("TWI init");
 	TWSR = 0x00;
 	TWBR = TWI_BAUD;
 	TWCR = (1<<TWEN);
 }
 
 void TWI_Start() {
-	print("start ");
+	TWI_Init();
+	//print("start ");
 	TWCR = (1<<TWINT) | (1<<TWSTA) | (1<<TWEN);
 	while (!(TWCR & (1<<TWINT)));
 }
 
-void TWI_Send(unsigned char data) {
-	print("send "); print(utoa((unsigned int)(data), str, 16));
+void TWI_Send(uint8_t data) {
+	//print("send "); print(utoa((unsigned int)(data), str, 16));
 	TWDR = data;
 	TWCR = (1<<TWINT) | (1<<TWEN);
 	while (!(TWCR & (1<<TWINT)));
 }
 
-void TWI_Write(unsigned char sAddr, unsigned char addr, unsigned char data) {
-	print("write ");
+void TWI_Write(uint8_t sAddr, uint8_t addr, uint8_t data) {
+	//print("write ");
 	//print("start, ");
 	TWI_Start();
 	//print("send sAddr, ");
@@ -39,7 +38,7 @@ void TWI_Write(unsigned char sAddr, unsigned char addr, unsigned char data) {
 	TWI_Stop();
 }
 
-char TWI_Read(unsigned char sAddr, unsigned char addr) {
+char TWI_Read(uint8_t sAddr, uint8_t addr) {
 	char register_value = 0;
 		
 	TWI_Start();
@@ -54,8 +53,8 @@ char TWI_Read(unsigned char sAddr, unsigned char addr) {
 	return register_value;
 }
 
-void TWI_Read(unsigned char sAddr, unsigned char begin_addr, unsigned char count, uint8_t* dest) {
-	unsigned char i;
+void TWI_Read(uint8_t sAddr, uint8_t begin_addr, uint8_t count, uint8_t* dest) {
+	uint8_t i;
 	
 	TWI_Start();
 	TWI_Send(sAddr<<1);
@@ -74,6 +73,6 @@ void TWI_Read(unsigned char sAddr, unsigned char begin_addr, unsigned char count
 }
 
 void TWI_Stop() {
-	print("stop\n");
+	//print("stop\n");
 	TWCR = (1<<TWINT) | (1<<TWEN) | (1<<TWSTO);
 }

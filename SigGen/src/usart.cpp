@@ -15,7 +15,7 @@ ISR(USART_UDRE_vect) {
 		UCSR0B &= ~(1<<3);
 		transmitting = false;
 	}
-	delay(1);
+	delay(2);
 }
 
 void usart_init() {
