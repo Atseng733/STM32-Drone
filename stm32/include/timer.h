@@ -3,7 +3,7 @@
 #include <f407.h>
 #include <f407_fn.h>
 #include <interrupt.h>
-#include <usart.h>
+#include <usart2.h>
 #include <stdlib.h>
 
 extern "C" void TIM6_init();

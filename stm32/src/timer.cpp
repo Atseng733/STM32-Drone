@@ -1,5 +1,5 @@
 #include <timer.h>
-usart timer_usart;
+usart2 timer_usart;
 volatile uint64_t ticks;
 uint32_t ms;
 // static volatile long ticks; //1 tick = 1us
@@ -15,6 +15,8 @@ void TIM6_init() {
 	TIM6->PSC = 0x000F; //set prescaler to PSC + 1
 	TIM6->ARR = 0x0100; //set auto reload register value
 	TIM6->CR1 |= 0x0001; //enable counter
+	enableInterrupt(54); //enable interrupts;
+
 	timer_usart.println("TIM6 initialized");
 }
 
@@ -24,15 +26,11 @@ uint32_t millis() {
 }
 
 void delay_ms(uint32_t _ms) {
-	timer_usart.println("testing");
-	enableInterrupt(54); //enable interrupts;
 	uint32_t end_time = millis() + _ms;
-	
 	while (millis() < end_time);
 }
 
 void TIM6_DAC_Handler() {
 	TIM6->SR = 0x0000;
 	ticks += 256;
-	//timer_usart.println(millis());
 }
