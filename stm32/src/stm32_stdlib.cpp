@@ -1,7 +1,9 @@
 #include <stm32_stdlib.h>
 
-char* itoa(char* str, uint64_t i, char base) {
+char* itoa(char* str, int64_t i, uint8_t base) {
  	bool decrement = false;
+ 	bool negative = false;
+ 	int64_t tempi = i;
 
  	if(i == 0) {
  		*str = '0';
@@ -25,15 +27,25 @@ char* itoa(char* str, uint64_t i, char base) {
 			decrement = true;
 			break;
 		default: 
+			if(tempi < 0) {
+				*str = '-';
+				str++;
+				negative = true;
+				tempi *= -1;
+			}
 			break;
 	}
 
 	char* cp = str;
-	uint64_t tempi = i;
 	int counter = 0;
 
 	while(tempi > 0) {
-		*cp = '0' + (tempi % base);
+		if((tempi % base) > 9) {
+			*cp = '0' + 7 + (tempi % base);
+		}
+		else {
+			*cp = '0' + (tempi % base);
+		}
 		cp++;
 		tempi /= base;
 		counter++;
@@ -49,6 +61,7 @@ char* itoa(char* str, uint64_t i, char base) {
 	}
 
 	if(decrement)	str -= 2;
+	if(negative) str--;
 
 	return str;
 }

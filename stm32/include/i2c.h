@@ -4,7 +4,8 @@
 #include <f407.h>
 #include <interrupt.h>
 #include <f407_fn.h>
-#include <usart.h>
+#include <usart2.h>
+#include <timer.h>
 
 class i2c {
 	public:
@@ -17,5 +18,7 @@ class i2c {
 		void stop();
 		uint8_t write(uint8_t sla_addr, uint8_t addr, uint8_t data);
 };
+
+extern i2c I2C;
 
 #endif

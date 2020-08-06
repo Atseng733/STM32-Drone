@@ -5,8 +5,8 @@
 #include <timer.h>
 #include <interrupt.h>
 #include <i2c.h>
-#include <usart.h>
 #include <stdlib.h>
 #include <usart2.h>
+#include <ssd1306.h>
 
 #endif

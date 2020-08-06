@@ -43,17 +43,6 @@ void GPIO_pinAFNConfig(GPIO_Typedef* gpio, uint8_t pin, uint8_t AFx, uint8_t oty
 	}
 }
 
-void GPIO_AFN(GPIO_Typedef* gpio, uint8_t pin, uint8_t AFx) {
-	switch(pin) {
-		case 0 ... 7 : 
-			gpio->AFRL |= (AFx << (4*pin));
-			break;
-		case 8 ... 15 :
-			gpio->AFRH |= (AFx << (4*(pin-8)));
-			break;
-	}
-}
-
 void GPIO_writeHigh(GPIO_Typedef* gpio, uint8_t pin) {
 	gpio->BSRR |= (1 << pin);
 }

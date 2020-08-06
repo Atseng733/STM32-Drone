@@ -9,7 +9,7 @@ volatile bool txc = false;
 void usart::init() {
 	RCC->APB2ENR |= 0x0010; //enable usart1 clock
 	USART1->CR1 |= 0x2000; //enable usart
-	USART1->BRR = 0x0341; //set baud rate to (16MHz / (8 * 2 * BRR )) 	BRR = 52.0625 = (34h + 1/16)
+	USART1->BRR = 0x0341; //set baud rate to (16MHz / (8 * 2 * BRR )) BRR = 52.0625 = (34h + 1/16)
 	USART1->CR1 |= 0x0080; //enable txe interrupt
 
 	GPIO_pinMode(GPIOB, 6, ALTFN);
