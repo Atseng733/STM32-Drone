@@ -6,8 +6,8 @@
 #include <usart.h>
 #include <stdlib.h>
 
-void TIM6_init();
-uint64_t millis();
-void delay_ms(uint16_t _ms);
+extern "C" void TIM6_init();
+uint32_t millis();
+void delay_ms(uint32_t _ms);
 
 #endif

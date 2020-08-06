@@ -1,7 +1,13 @@
-#include <stdlib.h>
+#include <stm32_stdlib.h>
 
-char* itoa(char* str, int i, char base) {
+char* itoa(char* str, uint64_t i, char base) {
  	bool decrement = false;
+
+ 	if(i == 0) {
+ 		*str = '0';
+ 		*(str + 1) = 0;
+ 		return str;
+ 	}
 
 	switch(base) {
 		case 2:
@@ -23,7 +29,7 @@ char* itoa(char* str, int i, char base) {
 	}
 
 	char* cp = str;
-	int tempi = i;
+	uint64_t tempi = i;
 	int counter = 0;
 
 	while(tempi > 0) {

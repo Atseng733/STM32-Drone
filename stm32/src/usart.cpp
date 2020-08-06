@@ -23,14 +23,14 @@ void usart::printc(char c) {
 	USART1->DR = c;
 }
 
-void usart::print(char str[]) {
+void usart::print(char* str) {
 	index = str;
 	txc = false;
 	enableInterrupt(37); //begin transmission by enabling interrupt
 	while(!txc); //wait for tx complete
 }
 
-void usart::print(long w) {
+void usart::print(uint64_t w) {
 	itoa(usart_str, w, 10);
 	index = usart_str;
 	txc = false;
@@ -38,7 +38,7 @@ void usart::print(long w) {
 	while(!txc); //wait for tx complete
 }
 
-void usart::print(long w, uint8_t base) {
+void usart::print(uint64_t w, uint8_t base) {
 	itoa(usart_str, w, base);
 	index = usart_str;
 	txc = false;
@@ -46,17 +46,17 @@ void usart::print(long w, uint8_t base) {
 	while(!txc); //wait for tx complete
 }
 
-void usart::println(char str[]) {
+void usart::println(char* str) {
 	newline = true;
 	print(str);
 }
 
-void usart::println(long w) {
+void usart::println(uint64_t w) {
 	newline = true;
 	print(w);
 }
 
-void usart::println(long w, uint8_t base) {
+void usart::println(uint64_t w, uint8_t base) {
 	newline = true;
 	print(w, base);
 }

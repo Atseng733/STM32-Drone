@@ -7,7 +7,7 @@ SRCS := $(wildcard src/*.cpp) $(wildcard lib/src/*.cpp)
 OBJS := $(patsubst src/%.cpp,build/%.o,$(SRCS))
 BUILD_DIR = build
 vpath %.cpp src
-vpath %.cpp lib
+#vpath %.cpp lib
 vpath %.bin build
 vpath %.elf build
 

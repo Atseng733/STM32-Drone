@@ -1,15 +1,24 @@
 #include <main.h>
 
 usart USART;
+static uint32_t r = 0;
+long count = 1;
 
 int main(void) {
-	USART.println("program start");
+	USART.println("Program start");
 	GPIO_pinMode(GPIOA, 6, OUTPUT);
 	GPIO_pinMode(GPIOD, 2, OUTPUT);
 	GPIO_writeLow(GPIOA, 6);
-
+	USART.print("NVIC_ISER1: "); USART.println(NVIC_ISER->ISER1, 16);
+	USART.print("CR1 Register: "); USART.println(TIM6->CR1, 16);
 	while(true) {
-		delay_ms(1);
+		//ticks = count;
+		delay_ms(1000);
+		USART.print("NVIC_ISER1: "); USART.println(NVIC_ISER->ISER1, 16);
+		USART.print("CR1 Register: "); USART.println(TIM6->CR1, 16);
+		USART.print("Static register: "); USART.println(r, 16);
+		//count++;
+		//delay_ms(1000);
 		GPIO_toggle(GPIOD, 2);
 	}
 
@@ -17,13 +26,6 @@ int main(void) {
 }
 
 void Reset_Handler() {
-	//RCC->APB1RSTR |= (1 << 4);
-	//RCC->APB1RSTR &= ~(1 << 4);
-	//RCC->AHB1RSTR = 0xFFFFFFFF;
-	//RCC->APB1RSTR = 0xFFFFFFFF;
-	//RCC->AHB1RSTR = 0x00000000;
-	//RCC->APB1RSTR = 0x00000000;
-	
 	RCC->CR |= 1 << 16; //enable external high-speed clock
 	GPIO_CLK_ENABLE(GPIOA)
 	GPIO_CLK_ENABLE(GPIOB)
@@ -32,5 +34,4 @@ void Reset_Handler() {
 	USART.init();
 	TIM6_init();
 	main();
-	while(1);
 }

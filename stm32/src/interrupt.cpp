@@ -1,4 +1,21 @@
 #include <interrupt.h>
+static volatile uint32_t ISER0 = 0;
+static volatile uint32_t ISER1 = 0;
+static volatile uint32_t ISER2 = 0;
+static volatile uint32_t ISER3 = 0;
+static volatile uint32_t ISER4 = 0;
+static volatile uint32_t ISER5 = 0;
+static volatile uint32_t ISER6 = 0;
+static volatile uint32_t ISER7 = 0;
+
+static volatile uint32_t ICER0 = 0;
+static volatile uint32_t ICER1 = 0;
+static volatile uint32_t ICER2 = 0;
+static volatile uint32_t ICER3 = 0;
+static volatile uint32_t ICER4 = 0;
+static volatile uint32_t ICER5 = 0;
+static volatile uint32_t ICER6 = 0;
+static volatile uint32_t ICER7 = 0;
 
 void Default_Handler() {
 	GPIO_pinMode(GPIOD, 6, OUTPUT);
@@ -229,6 +246,26 @@ void enableInterrupt(uint8_t IRQx) {
 	}
 }
 
+void enableAllInterrupts() {
+	NVIC_ISER->ISER0 = ISER0;
+	NVIC_ISER->ISER1 = ISER1;
+	NVIC_ISER->ISER2 = ISER2;
+	NVIC_ISER->ISER3 = ISER3;
+	NVIC_ISER->ISER4 = ISER4;
+	NVIC_ISER->ISER5 = ISER5;
+	NVIC_ISER->ISER6 = ISER6;
+	NVIC_ISER->ISER7 = ISER7;
+
+	NVIC_ICER->ICER0 = ICER0;
+	NVIC_ICER->ICER1 = ICER1;
+	NVIC_ICER->ICER2 = ICER2;
+	NVIC_ICER->ICER3 = ICER3;
+	NVIC_ICER->ICER4 = ICER4;
+	NVIC_ICER->ICER5 = ICER5;
+	NVIC_ICER->ICER6 = ICER6;
+	NVIC_ICER->ICER7 = ICER7;
+}
+
 void disableInterrupt(uint8_t IRQx) {
 	switch(IRQx/32) {
 		case 0:
@@ -255,5 +292,35 @@ void disableInterrupt(uint8_t IRQx) {
 		case 7:
 			NVIC_ICER->ICER7 |= (1 << (IRQx % 32));
 			break;
+
 	}
+}
+
+void disableAllInterrupts() {
+	ISER0 = NVIC_ISER->ISER0;
+	ISER1 = NVIC_ISER->ISER1;
+	ISER2 = NVIC_ISER->ISER2;
+	ISER3 = NVIC_ISER->ISER3;
+	ISER4 = NVIC_ISER->ISER4;
+	ISER5 = NVIC_ISER->ISER5;
+	ISER6 = NVIC_ISER->ISER6;
+	ISER7 = NVIC_ISER->ISER7;	
+
+	ICER0 = NVIC_ICER->ICER0;
+	ICER1 = NVIC_ICER->ICER1;
+	ICER2 = NVIC_ICER->ICER2;
+	ICER3 = NVIC_ICER->ICER3;
+	ICER4 = NVIC_ICER->ICER4;
+	ICER5 = NVIC_ICER->ICER5;
+	ICER6 = NVIC_ICER->ICER6;
+	ICER7 = NVIC_ICER->ICER7;	
+
+	NVIC_ICER->ICER0 = 0xFFFFFFFF;
+	NVIC_ICER->ICER1 = 0xFFFFFFFF;
+	NVIC_ICER->ICER2 = 0xFFFFFFFF;
+	NVIC_ICER->ICER3 = 0xFFFFFFFF;
+	NVIC_ICER->ICER4 = 0xFFFFFFFF;
+	NVIC_ICER->ICER5 = 0xFFFFFFFF;
+	NVIC_ICER->ICER6 = 0xFFFFFFFF;
+	NVIC_ICER->ICER7 = 0xFFFFFFFF;
 }
