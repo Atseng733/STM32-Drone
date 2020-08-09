@@ -18,8 +18,6 @@ static volatile uint32_t ICER6 = 0;
 static volatile uint32_t ICER7 = 0;
 
 void Default_Handler() {
-	GPIO_pinMode(GPIOD, 6, OUTPUT);
-	GPIO_writeHigh(GPIOD, 6);
 	while(1);
 }
 

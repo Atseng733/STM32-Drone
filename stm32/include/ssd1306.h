@@ -3,7 +3,7 @@
 
 #include <font.h>
 #include <i2c.h>
-#include <usart2.h>
+#include <usart.h>
 
 class ssd1306 {
 	private:

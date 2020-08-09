@@ -1,7 +1,6 @@
-#ifndef F407_FN_H
+/*#ifndef F407_FN_H
 #define F407_FN_H
-#include <f407.h>
-
+#include <boards.h>
 //pin data direction types
 #define INPUT ((uint32_t) 0x00)
 #define OUTPUT ((uint32_t) 0x01)
@@ -48,4 +47,4 @@ void GPIO_toggle(GPIO_Typedef* gpio, uint8_t pin);
 uint8_t GPIO_pinRead(GPIO_Typedef* gpio, uint8_t pin);
 void testFunc();
 
-#endif
+#endif*/

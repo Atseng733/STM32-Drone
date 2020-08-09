@@ -1,12 +1,14 @@
 #ifndef MAIN_H
 #define MAIN_H
 
-#include <f407_fn.h>
-#include <timer.h>
+#include <boards.h>
 #include <interrupt.h>
-#include <i2c.h>
-#include <stdlib.h>
-#include <usart2.h>
-#include <ssd1306.h>
+#include <configuration.h>
+#include <rcc.h>
+#include <f1_gpio.h>
+#include <usart.h>
+
+void read_sensor_data();
+void calibrate_sensors();
 
 #endif

@@ -1,4 +1,4 @@
-#include <f407_fn.h>
+/*#include <f407_fn.h>
 
 void GPIO_pinMode(GPIO_Typedef* gpio, uint8_t pin, uint8_t pinMode) {
 	gpio->MODER &= ~GPIO_WORD_MASK(pin);
@@ -60,9 +60,4 @@ void GPIO_pinReset(GPIO_Typedef* gpio, uint8_t pin);
 uint8_t GPIO_pinRead(GPIO_Typedef* gpio, uint8_t pin) {
 	return (gpio->IDR & (1 << pin));
 }
-
-void testFunc() {
-	RCC->AHB1ENR |= 0x001F;
-	GPIOD->MODER = 0x00001000;
-	GPIOD->PUPDR = 0x00001000;
-}
+*/

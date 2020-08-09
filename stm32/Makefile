@@ -1,7 +1,9 @@
 FILENAME = stm32
 PROGRAMMER = usbasp
-COMPILE = arm-none-eabi-g++ -mthumb -mcpu=cortex-m4 --std=c++14 -O2 -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections
-LINK = arm-none-eabi-g++ -mthumb -mcpu=cortex-m4 -T linkerscript.ld -nostartfiles
+PROCESSOR = cortex-m3
+DEVICE = stm32f103
+COMPILE = arm-none-eabi-g++ -mthumb -mcpu=$(PROCESSOR) --std=c++14 -O2 -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections -g
+LINK = arm-none-eabi-g++ -mthumb -mcpu=$(PROCESSOR) -T linker/$(DEVICE).ld -nostartfiles
 INC_FLAGS := -I include -I lib/header
 SRCS := $(wildcard src/*.cpp) $(wildcard lib/src/*.cpp)
 OBJS := $(patsubst src/%.cpp,build/%.o,$(SRCS))
@@ -11,7 +13,13 @@ vpath %.cpp src
 vpath %.bin build
 vpath %.elf build
 
-all: compile flash
+f103: DEVICE = stm32f103
+f103: PROCESSOR = cortex-m3
+f103: compile flash
+
+f407: DEVICE = stm32f407
+f407: PROCESSOR = cortex-m4
+f407: compile flash
 
 flash: $(FILENAME).bin
 	st-flash write $< 0x8000000
@@ -23,7 +31,6 @@ $(BUILD_DIR)/$(FILENAME).bin: $(FILENAME).elf
 	arm-none-eabi-objcopy -O binary $< $@
 
 $(BUILD_DIR)/$(FILENAME).elf: $(OBJS)
-	#arm-none-eabi-g++ -Wall -Os -mcpu=cortex-m4 -o $@ $(OBJS)
 	$(LINK) $(OBJS) -o $@
 
 $(BUILD_DIR)/%.o: %.cpp $(BUILD_DIR)

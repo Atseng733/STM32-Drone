@@ -1,8 +1,7 @@
 #ifndef INTERRUPT_H
 #define INTERRUPT_H
 #include <stdint.h> 
-#include <f407.h>
-#include <f407_fn.h>
+#include <boards.h>
 
 void Default_Handler();
 

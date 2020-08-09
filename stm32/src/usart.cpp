@@ -1,77 +1,92 @@
 #include <usart.h>
 
-usart serial;
-char* index;
+usart USART;
+char usart_buffer[256];
 char usart_str[32];
-bool newline = false;
-volatile bool txc = false;
+char* tx_index;
+char* buffer_index;
 
 void usart::init() {
-	RCC->APB2ENR |= 0x0010; //enable usart1 clock
-	USART1->CR1 |= 0x2000; //enable usart
-	USART1->BRR = 0x0341; //set baud rate to (16MHz / (8 * 2 * BRR )) BRR = 52.0625 = (34h + 1/16)
-	USART1->CR1 |= 0x0080; //enable txe interrupt
+	tx_index = usart_buffer;
+	buffer_index = usart_buffer;
 
-	GPIO_pinMode(GPIOB, 6, ALTFN);
-	GPIO_pinAFNConfig(GPIOB, 6, USART_AFN, PUSH_PULL, LOW_SPEED, FLOATING); //set PB6 to usart tx alternate function
+	RCC_USART1EN_REGISTER |= RCC_USART1EN; //enable usart1 clock
+	USART1->CR1 |= 0x2000; //enable usart
+	USART1->BRR = ((uint16_t)BRR_MANTISSA(USART_BAUD) << 4) | BRR_FRACTION(USART_BAUD); //set baud rate to (16MHz / (8 * 2 * BRR )) 	BRR = 52.0625 = (34h + 1h/16d)
+	//USART1->BRR = 0x0045; //set baud rate to (16MHz / (8 * 2 * BRR )) 	BRR = 52.0625 = (34h + 1h/16d)
+
+	pinMode(GPIOA, 9, OUTPUT);
+	pinConfig(GPIOA, 9, AFO_PP); //set PB6 to usart tx alternate function
 
 	USART1->CR1 |= 0x0008; //enable the transmitter
-	serial.println("usart enabled");
+
+	println("USART Initialized");
+}
+
+void usart::putc(char c) {
+	*buffer_index = c;
+
+	if((buffer_index + 1) == (usart_buffer + 256)) {
+		buffer_index = usart_buffer;
+	}
+	else {
+		buffer_index++;
+	}
+}
+
+void usart::put(char* str) {
+	while(*str != 0) {
+		putc(*str);
+		str++;
+	}
+}
+
+void usart::putln(char* str) {
+	while(*str != 0) {
+		putc(*str);
+		str++;
+	}
+
+	putc('\n');
+}
+
+void usart::transmit() {
+
+	while(tx_index != buffer_index) {
+		USART1->DR = *tx_index;
+
+		if((tx_index + 1) == (usart_buffer + 256)) {
+			tx_index = usart_buffer;
+		}
+		else {
+			tx_index++;
+		}
+
+		while(!(USART1->SR & USART_TXE));
+	}
 }
 
 void usart::printc(char c) {
-	USART1->DR = c;
+	putc(c);
+	transmit();
 }
 
 void usart::print(char* str) {
-	index = str;
-	txc = false;
-	enableInterrupt(37); //begin transmission by enabling interrupt
-	while(!txc); //wait for tx complete
-}
-
-void usart::print(uint64_t w) {
-	itoa(usart_str, w, 10);
-	index = usart_str;
-	txc = false;
-	enableInterrupt(37); //begin transmission by enabling interrupt
-	while(!txc); //wait for tx complete
-}
-
-void usart::print(uint64_t w, uint8_t base) {
-	itoa(usart_str, w, base);
-	index = usart_str;
-	txc = false;
-	enableInterrupt(37); //begin transmission by enabling interrupt
-	while(!txc); //wait for tx complete
+	put(str);
+	transmit();
 }
 
 void usart::println(char* str) {
-	newline = true;
-	print(str);
+	putln(str);
+	transmit();
 }
 
-void usart::println(uint64_t w) {
-	newline = true;
-	print(w);
+void usart::print(int64_t i, uint8_t base) {
+	put(itoa(usart_str, i, base));
+	transmit();
 }
 
-void usart::println(uint64_t w, uint8_t base) {
-	newline = true;
-	print(w, base);
-}
-
-void USART1_Handler() {
-	if(*index == 0) {
-		if(newline) {
-			USART1->DR = '\n';
-		}
-		disableInterrupt(37);
-		newline = false;
-		txc = true; //transmit complete
-	}
-	else {
-		USART1->DR = *index;
-		index++;
-	}
+void usart::println(int64_t i, uint8_t base) {
+	putln(itoa(usart_str, i, base));
+	transmit();
 }

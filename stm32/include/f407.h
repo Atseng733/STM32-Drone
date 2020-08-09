@@ -91,8 +91,6 @@ typedef struct
             uint32_t RESERVED11;
    volatile uint32_t SSCGR;     //0x80
    volatile uint32_t PLLI2SCFGR;
-
-
 } RCC_Typedef;
 
 typedef struct {
