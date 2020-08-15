@@ -2,7 +2,7 @@ FILENAME = stm32
 PROGRAMMER = usbasp
 PROCESSOR = cortex-m3
 DEVICE = stm32f103
-COMPILE = arm-none-eabi-g++ -mthumb -mcpu=$(PROCESSOR) --std=c++14 -O2 -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections -g
+COMPILE = arm-none-eabi-g++ -mthumb -mcpu=$(PROCESSOR) --std=c++11 -O2 -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections
 LINK = arm-none-eabi-g++ -mthumb -mcpu=$(PROCESSOR) -T linker/$(DEVICE).ld -nostartfiles
 INC_FLAGS := -I include -I lib/header
 SRCS := $(wildcard src/*.cpp) $(wildcard lib/src/*.cpp)
@@ -25,6 +25,10 @@ flash: $(FILENAME).bin
 	st-flash write $< 0x8000000
 	arm-none-eabi-size $(BUILD_DIR)/$(FILENAME).elf
 
+debug: COMPILE = arm-none-eabi-g++ -g -mthumb -mcpu=$(PROCESSOR) --std=c++14 -Og -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections
+debug: $(FILENAME).bin
+
+compile: COMPILE = arm-none-eabi-g++ -mthumb -mcpu=$(PROCESSOR) --std=c++14 -O2 -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections
 compile: $(FILENAME).bin
 
 $(BUILD_DIR)/$(FILENAME).bin: $(FILENAME).elf

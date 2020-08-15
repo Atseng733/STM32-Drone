@@ -37,14 +37,13 @@
 #define GPIO_WORD_MASK(n)		(0x3 << (2 * (n)))
 #define GPIO_HWORD_MASK(n)		(0x1 << (n))
 
-void GPIO_pinMode(GPIO_Typedef* gpio, uint8_t pin, uint8_t pinMode);
-void GPIO_pinMode(GPIO_Typedef* gpio, uint8_t pin, uint8_t pinMode, uint8_t pupd);
-void GPIO_pinOutputConfig(GPIO_Typedef* gpio,uint8_t pin, uint8_t mode, uint8_t speed, uint8_t pupd);
-void GPIO_pinAFNConfig(GPIO_Typedef* gpio, uint8_t pin, uint8_t AFx, uint8_t otype, uint8_t speed, uint8_t pupd);
-void GPIO_writeLow(GPIO_Typedef* gpio, uint8_t pin);
-void GPIO_writeHigh(GPIO_Typedef* gpio, uint8_t pin);
-void GPIO_toggle(GPIO_Typedef* gpio, uint8_t pin);
-uint8_t GPIO_pinRead(GPIO_Typedef* gpio, uint8_t pin);
-void testFunc();
+void pinMode(GPIO_Typedef* gpio, uint8_t pin, uint8_t pinMode);
+void pinMode(GPIO_Typedef* gpio, uint8_t pin, uint8_t pinMode, uint8_t pupd);
+void pinOutputConfig(GPIO_Typedef* gpio,uint8_t pin, uint8_t mode, uint8_t speed, uint8_t pupd);
+void pinAFNConfig(GPIO_Typedef* gpio, uint8_t pin, uint8_t AFx, uint8_t otype, uint8_t speed, uint8_t pupd);
+void writeLow(GPIO_Typedef* gpio, uint8_t pin);
+void writeHigh(GPIO_Typedef* gpio, uint8_t pin);
+void toggle(GPIO_Typedef* gpio, uint8_t pin);
+uint8_t pinRead(GPIO_Typedef* gpio, uint8_t pin);
 
 #endif*/

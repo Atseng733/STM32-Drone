@@ -7,17 +7,17 @@
 
 class ssd1306 {
 	private:
-		const uint8_t addr;
+		uint8_t addr;
 		uint16_t inc_CURSOR_LOC(uint8_t inc);
 	public:
-		ssd1306(uint8_t sAddr);
+		ssd1306() {}
 		uint16_t CURSOR_LOC;
 		uint8_t CURR_ROW;
 		uint8_t CURR_COL;
 		uint8_t text_size;
 		uint8_t get_addr();
 		void ssd1306_command(uint8_t c);
-		void begin();
+		void begin(uint8_t sAddr);
 		void clearDisplay(void);
 		void display(void) ;
 		

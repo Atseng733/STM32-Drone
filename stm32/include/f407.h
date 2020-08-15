@@ -31,6 +31,8 @@ typedef struct {
 	volatile uint32_t FLTR;
 } I2C_Typedef;
 
+#define USART_TXE (1 << 7)
+
 typedef struct {
 	volatile uint32_t SR;
 	volatile uint32_t DR;
@@ -54,6 +56,17 @@ typedef struct
 	volatile uint32_t AFRL;    //0x20
 	volatile uint32_t AFRH;
 } GPIO_Typedef;
+
+#define RCC_USART1EN_REGISTER RCC->APB2ENR
+	#define RCC_USART1EN (1 << 4)
+
+#define RCC_GPIOEN_REGISTER RCC->AHB1ENR
+	#define RCC_GPIOA (1 << 0)
+	#define RCC_GPIOB (1 << 1)
+	#define RCC_GPIOC (1 << 2)
+	#define RCC_GPIOD (1 << 3)
+#define RCC_TIM6EN_REGISTER RCC->APB1ENR
+#define RCC_TIM6EN (1 << 4)
 
 typedef struct
 {

@@ -17,10 +17,10 @@
 #define AFO_PP 0x2
 #define AFO_OD 0x3
 
-#define GPIO_MODE_MASK(n)		(0x3 << (n*4))
-#define GPIO_CNF_MASK(n)		(0x3 << ((n*4) + 2))
-#define GPIO_MODE(n, mode)	(mode << (n*4))	
-#define GPIO_CNF(n, mode)	(mode << ((n*4) + 2))
+#define GPIO_MODE_MASK(n)		(0x3 << ((n)*4))
+#define GPIO_CNF_MASK(n)		(0x3 << (((n)*4) + 2))
+#define GPIO_MODE(n, mode)	(mode << ((n)*4))	
+#define GPIO_CNF(n, mode)	(mode << (((n)*4) + 2))
 
 void pinMode(GPIO_Typedef* gpio, uint8_t pin, uint8_t mode);
 void pinConfig(GPIO_Typedef* gpio, uint8_t pin, uint8_t config);

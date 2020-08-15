@@ -37,11 +37,6 @@ uint8_t ssd1306_buffer[0x200] = {
 
 //0x11,0x11,0x0a,0x0a,0x04
 
-ssd1306::ssd1306(uint8_t sAddr) : addr(sAddr) {
-	CURSOR_LOC = 0;
-	text_size = 1;
-}
-
 uint8_t ssd1306::get_addr() {
 	return addr;
 }
@@ -51,11 +46,13 @@ void ssd1306::ssd1306_command(uint8_t c)
 	// I2C
 	uint8_t control = 0x00;   // Co = 0, D/C = 0
 	I2C.write(addr, control, c); //Set direction
-
 }
 
-void ssd1306::begin()
+void ssd1306::begin(uint8_t sAddr)
 {
+	addr = sAddr;
+	CURSOR_LOC = 0;
+	text_size = 1;
 	// Init sequence
 	ssd1306_command(SSD1306_DISPLAYOFF);                    // 0xAE
 	ssd1306_command(SSD1306_SETDISPLAYCLOCKDIV);            // 0xD5
@@ -104,18 +101,7 @@ void ssd1306::display(void)
 	ssd1306_command(0); // Page start address (0 = reset)
 	ssd1306_command(3); // Page end address
 
-	{
-		// save I2C bitrate
-		//Serial.println(TWBR, DEC);
-		//Serial.println(TWSR & 0x3, DEC);
-		I2C.start();
-		I2C.sla_w(addr);
-		I2C.send(0x40);
-		for(int i = 0; i < 512; i++) {
-			I2C.send(ssd1306_buffer[i]);
-		}
-		I2C.stop();
-	}
+	I2C.write(addr, 0x40, ssd1306_buffer, 512);
 }
 
 void ssd1306::clearDisplay() {

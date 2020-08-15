@@ -2,8 +2,8 @@ OUTPUT_FORMAT(elf32-littlearm)
 OUTPUT_ARCH(arm)
 
 MEMORY {
-    rom (rx)    : ORIGIN = 0x08000000, LENGTH = 0x00010000
-    ram (rwx)   : ORIGIN = 0x20000000, LENGTH = 0x00005000
+    rom (rx)    : ORIGIN = 0x08000000, LENGTH = 0x0010000
+    ram (rwx)   : ORIGIN = 0x20000000, LENGTH = 0x00020000
 }
 
 STACK_SIZE = 0x2000;
