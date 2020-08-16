@@ -1,3 +1,0 @@
-/home/anthony/Documents/Projects/esp8266/build/CMakeFiles/rebuild_cache.dir
-/home/anthony/Documents/Projects/esp8266/build/CMakeFiles/test_project.dir
-/home/anthony/Documents/Projects/esp8266/build/CMakeFiles/edit_cache.dir

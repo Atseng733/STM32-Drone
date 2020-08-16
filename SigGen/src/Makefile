@@ -12,7 +12,7 @@ upload: $(FILENAME).elf
 	avrdude -v -p $(DEVICE) -c $(PROGRAMMER) -U flash:w:$(FILENAME).hex:i
 
 $(FILENAME).elf: $(OBJS)
-	$(COMPILE) -o SignalGenerator.elf $(OBJS)
+	$(COMPILE) -o $(FILENAME).elf $(OBJS)
 	avr-objcopy -j .text -j .data -O ihex $(FILENAME).elf $(FILENAME).hex
 	avr-size --format=avr --mcu=$(DEVICE) $(FILENAME).elf
 
