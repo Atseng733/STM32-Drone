@@ -1,29 +1,34 @@
 #include <usart.h>
 
 usart USART;
-char usart_tx_buffer[256];
-char* tx_buffer_index;
-char* tx_index;
+char USART_TxBuffer[128];
+char USART_TxBuffer_w;
+char USART_TxBuffer_r;
 
-uint8_t USART_RxBuffer[256];
-uint32_t USART_RxBufferCount;
-uint32_t USART_RxCount;
+uint8_t USART_RxBuffer[128];
+uint8_t USART_Rx_rIndex;
+uint8_t USART_Rx_wIndex;
 
 char usart_str[32];
 
-uint8_t* TxBufferIT;
-uint8_t TxState;
-uint32_t TxLen;
 
-uint8_t* RxBuffer;
-volatile uint8_t RxState;
-volatile uint32_t RxLen;
+uint8_t USART_RxBufferIT[256];
+uint8_t USART_RxBufferIT_r;
+uint8_t USART_RxBufferIT_w;
+
+volatile bool RxState;
+uint16_t RxLen;
+uint8_t* RxData;
 
 void usart::init(USART_Typedef* usartx, uint32_t baud) {
-	tx_index = usart_tx_buffer;
-	tx_buffer_index = usart_tx_buffer;
+	USART_TxBuffer_r = 0;
+	USART_TxBuffer_w = 0;
+	USART_Rx_rIndex = 0;
+	USART_Rx_wIndex = 0;
+	USART_RxBufferIT_r = 0;
+	USART_RxBufferIT_w = 0;
+	RxState = false;
 
-	RxState = 0;
 
 	rcc_usart1_enable(); //enable usart1 clock
 	usartx->CR1 |= USART_CR1_UE; //enable usart
@@ -44,14 +49,9 @@ void usart::init(USART_Typedef* usartx, uint32_t baud) {
 
 
 void usart::putc(char c) {
-	*tx_buffer_index = c;
+	USART_TxBuffer[USART_TxBuffer_w++] = c;
 
-	if((tx_buffer_index + 1) == (usart_tx_buffer + 255)) {
-		tx_buffer_index = usart_tx_buffer;
-	}
-	else {
-		tx_buffer_index++;
-	}
+	USART_TxBuffer_w &= 0xFF;
 }
 
 void usart::put(char* str) {
@@ -70,16 +70,15 @@ void usart::putln(char* str) {
 	putc('\n');
 }
 
-void usart::transmit() {
-	while(tx_index != tx_buffer_index) {
-		USART1->DR = *tx_index;
+void usart::putln(int64_t i, uint8_t base) {
+	putln(itoa(usart_str, i, base));
+}
 
-		if((tx_index + 1) == (usart_tx_buffer + 256)) {
-			tx_index = usart_tx_buffer;
-		}
-		else {
-			tx_index++;
-		}
+void usart::transmit() {
+	while(USART_TxBuffer_r != USART_TxBuffer_w) {
+		USART1->DR = USART_TxBuffer[USART_TxBuffer_r++];
+
+		USART_TxBuffer_r &= 0xFF;
 
 		while(!(USART1->SR & USART_SR_TXE));
 	}
@@ -115,76 +114,114 @@ void usart::println(double d) {
 	transmit();
 }
 
+
+
+
 uint8_t usart::receiveIT(uint8_t* dest,  uint32_t len) {
-	while(RxState != 0);
-	uint8_t rxstate = RxState;
-	uint8_t temp;
-
-	if(rxstate != USART_BUSY_RX) {
-		RxState = USART_BUSY_RX;
-		RxBuffer = dest;
+	//while(RxState);
+	//if(USART1->SR & USART_SR_IDLE) {
+		RxState = true;
+		RxData = dest;
 		RxLen = len;
-
-		enableInterrupt(37);
-		temp = USART1->DR;
 		USART1->CR1 |= USART_CR1_RXNEIE;
-	}
+		enableInterrupt(37);
+	//}
+	//else {
+	//	return 0;
+	//}
 
-	while(RxState != 0);
-	return rxstate;
+	return 1;
 }
 
-uint8_t usart::read(uint8_t* dest, uint32_t len) {
-	uint8_t temp = USART1->DR;
-	while(len > 0) {
-		while(!(USART1->SR & USART_SR_RXNE));
-		*dest = USART1->DR;
-		dest++;
-		len--;
-		if(USART1->SR & USART_SR_ORE) {
-			USART.println("ORE");
+
+uint8_t usart::readSync(uint8_t* dest,  uint32_t len, uint8_t start) {
+	uint8_t temp;
+	uint8_t sync = 0;
+	uint8_t w_index = 0;
+	
+	while(w_index < len)
+	{
+		if(USART1->SR & USART_SR_RXNE) 
+		{
+			USART_RxBuffer[USART_Rx_wIndex++] = USART1->DR;
+			USART_Rx_wIndex &= 0xFF;
 		}
-		if(USART1->SR & USART_SR_NE) {
-			USART.println("NE");
-		}
-		if(USART1->SR & USART_SR_FE) {
-			USART.println("FE");
-		}
-		if(USART1->SR & USART_SR_PE) {
-			USART.println("PE");
-		}
+
+	 	if (USART_Rx_wIndex != USART_Rx_rIndex)
+	 	{
+	 		temp = USART_RxBuffer[USART_Rx_rIndex++];
+	 		USART_Rx_rIndex &= 0xFF;
+
+	 		if (temp == start)
+	 		{
+	 			sync = 1;
+	 			w_index = 0;
+	 			dest[w_index++] = temp;
+	 		}
+	 		else if(sync == 1)
+	 		{
+				dest[w_index++] = temp;
+	 		}
+	 	}
 	}
+
+	return 1;
+}
+
+
+uint8_t usart::read(uint8_t* dest, uint32_t len, uint8_t start) {
+	uint8_t temp;
+	uint8_t i = 0;
+	bool sync = false;
+
+	while(i < len)
+	{
+	 	temp = USART_RxBufferIT[USART_RxBufferIT_r++];
+	 	USART_RxBufferIT_r &= 0xFF;
+
+	 	if(USART_RxBufferIT_r != USART_RxBufferIT_w) {
+		 	if(temp == start) {
+		 		sync = true;
+		 		dest[i++] = temp;
+		 	}
+		 	else if(sync) {
+		 		dest[i++] = temp;
+		 	}
+		 	//dest[i++] = USART_RxBufferIT[USART_RxBufferIT_r++];
+		 	//USART_RxBufferIT_r &= 0xFF;
+	 	}
+	}
+	
+
+	
 	return 1;
 }
 
 uint8_t usart::read() {
 	uint8_t temp;
 
-	while(!(USART1->SR & USART_SR_RXNE));
-	temp = USART1->DR;
-	
-	return temp;
+	while(USART_RxBufferIT_w != USART_RxBufferIT_r)
+	{
+	 	temp = USART_RxBufferIT[USART_RxBufferIT_r++];
+	 	USART_RxBufferIT_r &= 0xFF;
+	}
+
+	return 1;
 }
 
 void USART1_Handler() {
-	uint8_t temp;
-
-	if(USART1->SR & USART_SR_RXNE) {
-		if(RxLen > 0) {
-			*(RxBuffer++) = USART1->DR;
-			RxLen--;
-		}
-		if(RxLen == 0) {
-			disableInterrupt(37);
+	if(USART1->SR & USART_SR_RXNE) 
+	{
+		USART_RxBufferIT[USART_RxBufferIT_w++] = USART1->DR;
+		//USART_RxBufferIT_w &= 0xFF;
+		if(USART_RxBufferIT_w == 255) {
 			USART1->CR1 &= ~USART_CR1_RXNEIE;
-			RxState = USART_READY;
+			RxState = false;
 		}
-	}
-
-	if(USART1->SR & USART_SR_ORE) {
-		temp = USART1->DR; 
-		disableInterrupt(37);
-		USART1->CR1 &= ~USART_CR1_RXNEIE;
-		RxState = USART_READY;
+		toggle(GPIOB, 9);
+		/*if(RxLen == 0) {
+			USART1->CR1 &= ~USART_CR1_RXNEIE;
+			RxState = false;
+		}*/
 	}
 }

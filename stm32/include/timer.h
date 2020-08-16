@@ -6,7 +6,7 @@
 #include <stdlib.h>
 #include <rcc.h>
 
-#define SYSTICK_LOAD ((uint32_t)((F_CPU/1000000)*10)) //reload every 10us
+#define SYSTICK_LOAD ((uint32_t)(F_CPU/1000)) //reload every 1ms
 
 void timer_init();
 uint32_t micros();

@@ -25,6 +25,7 @@ public:
 	void putc(char c);
 	void put(char* str);
 	void putln(char* str);
+	void putln(int64_t i, uint8_t base);
 	void transmit();
 	void printc(char c);
 	void print(char* str);
@@ -33,8 +34,10 @@ public:
 	void println(int64_t i, uint8_t base);
 	void println(double d);
 	uint8_t receiveIT(uint8_t* dest,  uint32_t len);
-	uint8_t read(uint8_t* dest, uint32_t len);
+	uint8_t read(uint8_t* dest, uint32_t len, uint8_t start);
 	uint8_t read();
+	uint8_t readSync(uint8_t* dest,  uint32_t len, uint8_t start);
+	
 };
 
 extern usart USART;

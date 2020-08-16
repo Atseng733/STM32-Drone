@@ -6,7 +6,7 @@ MEMORY {
     ram (rwx)   : ORIGIN = 0x20000000, LENGTH = 0x00005000
 }
 
-STACK_SIZE = 0x2000;
+STACK_SIZE = 0x1000;
 
 SECTIONS {
     .vectors : {
