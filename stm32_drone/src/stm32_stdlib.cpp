@@ -1,4 +1,5 @@
 #include <stm32_stdlib.h>
+char stdlib_str[32];
 
 char* itoa(char* str, int64_t i, uint8_t base) {
  	bool decrement = false;

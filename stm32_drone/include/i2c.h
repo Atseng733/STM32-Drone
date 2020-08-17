@@ -7,27 +7,33 @@
 #include <timer.h>
 #include <rcc.h>
 
-#define I2C_CCR_VALUE ((uint32_t)((1/(double)I2C_FREQ)/(3/(double)APB1_CLK)))
+#define I2C_CCR_VALUE(freq) ((uint32_t)((1/(double)freq)/(3/(double)APB1_CLK)))
 #define I2C_TRISE_VALUE ((uint32_t)((.0000003)/(1/(double)APB1_CLK)))
+
 #define I2C_READY 0
 #define I2C_BUSY_TX 1
 #define I2C_BUSY_RX 2
 
 class i2c {
 	private:
-		void I2C_RXNE_Handler();
+		I2C_Typedef* I2Cx;
+
+		void I2C_ISR();
+		void Start();
+		void SendAddrW(uint8_t addr);
+		void SendAddrR(uint8_t addr);
+		void AckEnable();
+		void AckDisable();
+		void ClearAddrFlag();
+		void Stop();
 	public:
 		i2c() {}
-		void init();
-		void write(uint8_t sla_addr, uint8_t addr, uint8_t data);
-		void write(uint8_t sla_addr, uint8_t addr, uint8_t* data, uint16_t len);
-		void iwrite(uint8_t sla_addr, uint8_t addr, uint8_t* data, uint32_t len);
-		uint8_t read(uint8_t sla_addr, uint8_t addr);
-		void read(uint8_t sla_addr, uint8_t begin_addr, uint8_t* dest, uint8_t count);
-		void iread(uint8_t sla_addr, uint8_t addr, uint8_t* dest, uint8_t count);
-		void I2C_CloseTx();
-		void I2C_CloseRx();
-		void I2C_EV_ISR();
+		void Init(I2C_Typedef* i2cx, uint32_t i2c_speed);
+		uint8_t GetFlagStatus(uint32_t reg, uint32_t flag);
+		void write(uint8_t slaAddr, uint8_t regAddr, uint8_t data);
+		void write(uint8_t slaAddr, uint8_t regAddr, uint8_t* data, uint16_t len);
+		uint8_t read(uint8_t slaAddr, uint8_t regAddr);
+		void read(uint8_t slaAddr, uint8_t regAddr, uint8_t* dest, uint16_t len);
 };
 
 extern i2c I2C;

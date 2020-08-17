@@ -6,7 +6,6 @@
 
 #define PLL_CLK_SRC 1 //0: high speed internal/2		1: high speed external/2
 
-#define USART_BAUD 230400
-#define I2C_FREQ 200000
+#define I2C_FREQ 300000
 
 #endif

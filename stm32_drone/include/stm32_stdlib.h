@@ -7,4 +7,6 @@
 char* itoa(char* str, int64_t i, uint8_t base = 10);
 char* dtoa(char* str, double d);
 
+extern char stdlib_str[32];
+
 #endif
