@@ -18,7 +18,7 @@
 #define USART_MODE_RX 1
 #define USART_MODE_TXRX 2
 
-#define RX_BUFFER_SIZE 0xFF //make sure it's something like 0b11111111 not 0b11011111
+#define RX_BUFFER_SIZE 0x7F //make sure it's something like 0b11111111 not 0b11011111
 
 class usart {
 	private:
@@ -37,7 +37,7 @@ class usart {
 		void println(char* str);
 		void println(int64_t num, uint8_t base);
 		void sendIT(char* str);
-		void receiveIT(uint16_t len);
+		void receiveIT();
 		void read(uint8_t* data, uint16_t len);
 		void readSync(uint8_t* data, uint16_t len, uint8_t syncByte);
 		void USART_ISR();

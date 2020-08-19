@@ -30,10 +30,10 @@ class i2c {
 		i2c() {}
 		void Init(I2C_Typedef* i2cx, uint32_t i2c_speed);
 		uint8_t GetFlagStatus(uint32_t reg, uint32_t flag);
-		void write(uint8_t slaAddr, uint8_t regAddr, uint8_t data);
-		void write(uint8_t slaAddr, uint8_t regAddr, uint8_t* data, uint16_t len);
-		uint8_t read(uint8_t slaAddr, uint8_t regAddr);
-		void read(uint8_t slaAddr, uint8_t regAddr, uint8_t* dest, uint16_t len);
+		void Write(uint8_t slaAddr, uint8_t regAddr, uint8_t data);
+		void Write(uint8_t slaAddr, uint8_t regAddr, uint8_t* data, uint16_t len);
+		uint8_t Read(uint8_t slaAddr, uint8_t regAddr);
+		void Read(uint8_t slaAddr, uint8_t regAddr, uint8_t* dest, uint16_t len);
 };
 
 extern i2c I2C;

@@ -5,7 +5,7 @@
 #include <usart.h>
 
 char* itoa(char* str, int64_t i, uint8_t base = 10);
-char* dtoa(char* str, double d);
+char* dtoa(char* str, double d, uint8_t prec);
 
 extern char stdlib_str[32];
 

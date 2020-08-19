@@ -93,9 +93,7 @@ void usart::sendIT(char* str) {
 	USARTx->CR1 |= USART_CR1_TXEIE;
 }
 
-void usart::receiveIT(uint16_t len) {
-	//RxLen = len;
-
+void usart::receiveIT() {
 	USART_InterruptEnable();
 	USARTx->CR1 |= USART_CR1_RXNEIE;
 }
@@ -146,15 +144,8 @@ void usart::USART_ISR() {
 	
 	if(GetFlagStatus(USARTx->CR1, USART_CR1_RXNEIE)) {
 		if(GetFlagStatus(USARTx->SR, USART_SR_RXNE)) {
-			//if(RxLen > 0) {
 				RxBuffer[RxBuffer_w++] = USARTx->DR;
 				RxBuffer_w &= RX_BUFFER_SIZE;
-			//	RxLen--;
-			//}
-			
-			/*if(RxLen == 0) {
-				USARTx->CR1 &= ~(USART_CR1_RXNEIE);
-			}*/
 		}
 	}
 

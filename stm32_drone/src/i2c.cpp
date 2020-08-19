@@ -61,7 +61,7 @@ uint8_t i2c::GetFlagStatus(uint32_t reg, uint32_t flag) {
 	return (reg & flag);
 }
 
-void i2c::write(uint8_t slaAddr, uint8_t regAddr, uint8_t data) {
+void i2c::Write(uint8_t slaAddr, uint8_t regAddr, uint8_t data) {
 	uint32_t temp;
 
 	Start();
@@ -80,7 +80,7 @@ void i2c::write(uint8_t slaAddr, uint8_t regAddr, uint8_t data) {
 	Stop();
 }
 
-void i2c::write(uint8_t slaAddr, uint8_t regAddr, uint8_t *data, uint16_t len) {
+void i2c::Write(uint8_t slaAddr, uint8_t regAddr, uint8_t *data, uint16_t len) {
 	uint32_t temp;
 
 	Start();
@@ -102,7 +102,7 @@ void i2c::write(uint8_t slaAddr, uint8_t regAddr, uint8_t *data, uint16_t len) {
 
 	Stop();
 }
-uint8_t i2c::read(uint8_t slaAddr, uint8_t regAddr) {
+uint8_t i2c::Read(uint8_t slaAddr, uint8_t regAddr) {
 	uint8_t data;
 	uint32_t temp;
 
@@ -133,7 +133,7 @@ uint8_t i2c::read(uint8_t slaAddr, uint8_t regAddr) {
 
 	return data;
 }
-void i2c::read(uint8_t slaAddr, uint8_t regAddr, uint8_t* dest, uint16_t len) {
+void i2c::Read(uint8_t slaAddr, uint8_t regAddr, uint8_t* dest, uint16_t len) {
 	uint32_t temp;
 	uint16_t RxLen = len;
 

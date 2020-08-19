@@ -66,44 +66,14 @@ char* itoa(char* str, int64_t i, uint8_t base) {
 
 	return str;
 }
-//59.5320000000000000000
-/*char* dtoa(char* str, double d, uint8_t prec) {
-	double tempd = d + (1/pow(10, prec + 1));
-	int64_t tempi = (int64_t)(tempd);
-	uint8_t int_length;
-	uint8_t dec_cnt = 0;
-	char* cp = str;
-	USART.println(tempi);
-
-	while((tempd - (int)(tempd)) > 0) {
-		tempd *= 10;
-		dec_cnt++;
-	}
-	USART.println(dec_cnt);
-
-	tempi = (d * pow(10, dec_cnt));
-	USART.println(tempi);
-
-	for(int i; i < (int_length + dec_cnt); i++) {
-		if(i == dec_cnt) {
-			*cp = '.';
-			cp++;
-		}
-
-		*cp = tempi % 10;
-		cp++;
-		tempi /= 10;
-	}
-
-	return str;
-}*/
-static double PRECISION = 0.0001;
-static int MAX_NUMBER_STRING_SIZE = 32;
 
 /**
  * Double to ASCII
+ * from https://stackoverflow.com/questions/2302969/convert-a-float-to-a-string
  */
-char * dtoa(char *s, double n) {
+char * dtoa(char *s, double n, uint8_t prec) {
+	const double PRECISION = (1 / pow(10, prec));
+
     // handle special cases
     if (isnan(n)) {
         //strcpy(s, "nan");

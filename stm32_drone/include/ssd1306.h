@@ -8,6 +8,7 @@
 class ssd1306 {
 	private:
 		uint8_t addr;
+		uint8_t ssd1306_buffer[0x200];
 		uint16_t inc_CURSOR_LOC(uint8_t inc);
 	public:
 		ssd1306() {}
@@ -25,8 +26,6 @@ class ssd1306 {
 		void setCursor(uint8_t col, uint8_t row);
 		void setTextSize(uint8_t size);
 };
-
-extern uint8_t ssd1306_buffer[0x200];
 
 #define SSD1306_SWITCHCAPVCC 0x2
 

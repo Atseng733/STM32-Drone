@@ -9,7 +9,7 @@ void timer_init() {
 }
 
 uint32_t micros() {
-	return (ticks * 1000) + (uint64_t)((SYSTICK_LOAD - SysTick->VAL) / ((double)(SYSTICK_LOAD)) * 1000);
+	return (ticks * 1000) + (uint64_t)((SYSTICK_LOAD + 1 - SysTick->VAL) / ((double)(SYSTICK_LOAD)) * 1000);
 }
 
 uint32_t millis() {

@@ -7,6 +7,7 @@
 #include <rcc.h>
 #include <usart.h>
 #include <timer.h>
+#include <adv_timer.h>
 #include <ssd1306.h>
 #include <mpu9250.h>
 #include <math.h>
