@@ -1,13 +1,14 @@
-#ifndef F103_H
-#define F103_H
+#ifndef F407_H
+#define F407_H
 #include <stdint.h>
+
 
 #ifndef F_CPU
 #define F_CPU 8000000UL
 #endif
 
 #define F_HSE 8000000UL
-#define F_HSI 8000000UL
+#define F_HSI 16000000UL
 
 typedef struct {
 	volatile uint32_t CR1;       //0x00
@@ -24,24 +25,6 @@ typedef struct {
 	volatile uint32_t ARR;
 
 } BASIC_TIM_Typedef;
-
-#define TIM_CR1_OPM (1 << 3)
-#define TIM_CR1_URS (1 << 2)
-#define TIM_CR1_UDIS (1 << 1)
-#define TIM_CR1_CEN (1 << 0)
-
-#define TIM_DIER_TDE (1 << 14)
-#define TIM_DIER_CC4DE (1 << 12)
-#define TIM_DIER_CC3DE (1 << 11)
-#define TIM_DIER_CC2DE (1 << 10)
-#define TIM_DIER_CC1DE (1 << 9)
-#define TIM_DIER_UDE (1 << 8)
-#define TIM_DIER_TIE (1 << 6)
-#define TIM_DIER_CC4IE (1 << 4)
-#define TIM_DIER_CC3IE (1 << 3)
-#define TIM_DIER_CC2IE (1 << 2)
-#define TIM_DIER_CC1IE (1 << 1)
-#define TIM_DIER_UIE (1 << 0)
 
 typedef struct {
 	volatile uint32_t CR1;
@@ -64,6 +47,8 @@ typedef struct {
 				uint32_t RESERVED2;
 	volatile uint32_t DCR;
 	volatile uint32_t DMAR;
+	volatile uint32_t TIM2_OR;
+	volatile uint32_t TIM5_OR;
 } GENERAL_TIM_Typedef;
 
 #define I2C_CR1_ACK (1 << 10)
@@ -90,6 +75,7 @@ typedef struct {
 #define I2C_CCR_DUTY (1 << 14)
 #define I2C_CCR_CCR (1 << 0)
 
+
 typedef struct {
 	volatile uint32_t CR1;  //0x00
 	volatile uint32_t CR2;
@@ -100,7 +86,53 @@ typedef struct {
 	volatile uint32_t SR2;
 	volatile uint32_t CCR;
 	volatile uint32_t TRISE;
+	volatile uint32_t FLTR;
 } I2C_Typedef;
+
+#define SPI_CR1_BIDIMODE (1 << 15)
+#define SPI_CR1_BIDIOE (1 << 14)
+#define SPI_CR1_CRCEN (1 << 13)
+#define SPI_CR1_CRCNEXT (1 << 12)
+#define SPI_CR1_DFF (1 << 11)
+#define SPI_CR1_RXONLY (1 << 10)
+#define SPI_CR1_SSM (1 << 9)
+#define SPI_CR1_SSI (1 << 8)
+#define SPI_CR1_LSBFIRST (1 << 7)
+#define SPI_CR1_SPE (1 << 6)
+#define SPI_CR1_BR 3
+#define SPI_CR1_MSTR (1 << 2)
+#define SPI_CR1_CPOL (1 << 1)
+#define SPI_CR1_CPHA (1 << 0)
+
+#define SPI_CR2_TXEIE (1 << 7)
+#define SPI_CR2_RXNEIE (1 << 6)
+#define SPI_CR2_ERRIE (1 << 5)
+#define SPI_CR2_FRF (1 << 4)
+#define SPI_CR2_SSOE (1 << 2)
+#define SPI_CR2_TXDMAEN (1 << 1)
+#define SPI_CR2_RXDMAEN (1 << 0)
+
+#define SPI_SR_FRE (1 << 8)
+#define SPI_SR_BSY (1 << 7)
+#define SPI_SR_OVR (1 << 6)
+#define SPI_SR_MODF (1 << 5)
+#define SPI_SR_CRCERR (1 << 4)
+#define SPI_SR_UDR (1 << 3)
+#define SPI_SR_CHSIDE (1 << 2)
+#define SPI_SR_TXE (1 << 1)
+#define SPI_SR_RXNE (1 << 0)
+
+typedef struct {
+	volatile uint32_t CR1;
+	volatile uint32_t CR2;
+	volatile uint32_t SR;
+	volatile uint32_t DR;
+	volatile uint32_t CRCPR;
+	volatile uint32_t RXCRCR;
+	volatile uint32_t TXCRCR;
+	volatile uint32_t I2SCFGR;
+	volatile uint32_t I2SPR;
+} SPI_Typedef;
 
 #define USART_SR_TXE (1 << 7)
 #define USART_SR_TC (1 << 6)
@@ -130,89 +162,129 @@ typedef struct {
 	volatile uint32_t GTPR;
 } USART_Typedef;
 
-typedef struct {
-	volatile uint32_t EVCR;
-	volatile uint32_t MAPR;
-	volatile uint32_t EXTICR1;
-	volatile uint32_t EXTICR2;
-	volatile uint32_t EXTICR3;
-	volatile uint32_t EXTICR4;
-				uint32_t RESERVED1;
-	volatile uint32_t MAPR2;
-} AFIO_Typedef;
+#define SDIO_POWER_PWRCTRL 0
+
+#define SDIO_CLKCR_WIDBUS 11
+#define SDIO_CLKCR_BYPASS (1 << 10)
+#define SDIO_CLKCR_PWRSAV (1 << 9)
+#define SDIO_CLKCR_CLKEN (1 << 8);
+#define SDIO_CLKCR_CLKDIV 0
+
+#define SDIO_CMD_CPSMEN (1 << 10)
+#define SDIO_CMD_WAITPEND (1 << 9)
+#define SDIO_CMD_WAITINT (1 << 8)
+#define SDIO_CMD_WAITRESP 6
+#define SDIO_CMD_INDEX 0
+
+#define SDIO_STA_SDIOIT (1 << 22)
+#define SDIO_STA_RXDAVL (1 << 21)
+#define SDIO_STA_TXDAVL (1 << 20)
+#define SDIO_STA_RXFIFOE (1 << 19)
+#define SDIO_STA_TXFIFOE (1 << 18)
+#define SDIO_STA_RXFIFOF (1 << 17)
+#define SDIO_STA_TXFIFOF (1 << 16)
+#define SDIO_STA_RXFIFOHF (1 << 15)
+#define SDIO_STA_TXFIFOHE (1 << 14)
+#define SDIO_STA_RXACT (1 << 13)
+#define SDIO_STA_TXACT (1 << 12)
+#define SDIO_STA_CMDACT (1 << 11)
+#define SDIO_STA_DBCKEND (1 << 10)
+#define SDIO_STA_STBITERR (1 << 9)
+#define SDIO_STA_DATAEND (1 << 8)
+#define SDIO_STA_CMDSENT (1 << 7)
+#define SDIO_STA_CMDREND (1 << 6)
+#define SDIO_STA_RXOVERR (1 << 5)
+#define SDIO_STA_TXUNDERR (1 << 4)
+#define SDIO_STA_DTIMEOUT (1 << 3)
+#define SDIO_STA_CTIMEOUT (1 << 2)
+#define SDIO_STA_DCRCFAIL (1 << 1)
+#define SDIO_STA_CCRCFAIL (1 << 0)
+
+#define SDIO_ICR_CEATAENDC (1 << 23)
+#define SDIO_ICR_SDIOITC (1 << 22)
+#define SDIO_ICR_DBCKENDC (1 << 10)
+#define SDIO_ICR_STBITERRC (1 << 9)
+#define SDIO_ICR_DATAENDC (1 << 8)
+#define SDIO_ICR_CMDSENTC (1 << 7)
+#define SDIO_ICR_CMDRENDC (1 << 6)
+#define SDIO_ICR_RXOVERRC (1 << 5)
+#define SDIO_ICR_TXUNDERRC (1 << 4)
+#define SDIO_ICR_DTIMEOUTC (1 << 3)
+#define SDIO_ICR_CTIMEOUTC (1 << 2)
+#define SDIO_ICR_DCRCFAILC (1 << 1)
+#define SDIO_ICR_CCRCFAILC (1 << 0)
 
 typedef struct {
-	volatile uint32_t IMR;
-	volatile uint32_t EMR;
-	volatile uint32_t RTSR;
-	volatile uint32_t FTSR;
-	volatile uint32_t SWIER;
-	volatile uint32_t PR;
-} EXTI_Typedef;
+	volatile uint32_t POWER;
+	volatile uint32_t CLKCR;
+	volatile uint32_t ARG;
+	volatile uint32_t CMD;
+	volatile uint32_t RESPCMD;
+	volatile uint32_t RESP1;
+	volatile uint32_t RESP2;
+	volatile uint32_t RESP3;
+	volatile uint32_t RESP4;
+	volatile uint32_t DTIMER;
+	volatile uint32_t DLEN;
+	volatile uint32_t DCTRL;
+	volatile uint32_t DCOUNT;
+	volatile uint32_t STA;
+	volatile uint32_t ICR;
+	volatile uint32_t MASK; //0x3C
+				uint32_t RESERVED1;
+				uint32_t RESERVED2;
+	volatile uint32_t FIFOCNT; //0x48
+				uint32_t RESERVED3;
+				uint32_t RESERVED4;
+				uint32_t RESERVED5;
+				uint32_t RESERVED6;
+				uint32_t RESERVED7;
+				uint32_t RESERVED8;
+				uint32_t RESERVED9;
+				uint32_t RESERVED10;
+				uint32_t RESERVED11;
+				uint32_t RESERVED12;
+				uint32_t RESERVED13;
+				uint32_t RESERVED14;
+				uint32_t RESERVED15;
+	volatile uint32_t FIFO;
+} SDIO_Typedef;
 
 typedef struct 
 {
-	volatile uint32_t CRL;   //0x00
-	volatile uint32_t CRH;
-	volatile uint32_t IDR;
+	volatile uint32_t MODER;   //0x00
+	volatile uint32_t OTYPER;
+	volatile uint32_t OSPEEDR;
+	volatile uint32_t PUPDR;
+	volatile uint32_t IDR;     //0x10
 	volatile uint32_t ODR;
 	volatile uint32_t BSRR;
-	volatile uint32_t BRR;
-	volatile uint32_t LCKR;    //0x20
+	volatile uint32_t LCKR;
+	volatile uint32_t AFRL;    //0x20
+	volatile uint32_t AFRH;
 } GPIO_Typedef;
 
+
 typedef struct {
-	volatile uint32_t ISR;
-	volatile uint32_t IFCR;
-	volatile uint32_t CCR1;
-	volatile uint32_t CNDTR1;
-	volatile uint32_t CPAR1;
-	volatile uint32_t CMAR1;
-				uint32_t RESERVED1;
-	volatile uint32_t CCR2;
-	volatile uint32_t CNDTR2;
-	volatile uint32_t CPAR2;
-	volatile uint32_t CMAR2;
-				uint32_t RESERVED2;
-	volatile uint32_t CCR3;
-	volatile uint32_t CNDTR3;
-	volatile uint32_t CPAR3;
-	volatile uint32_t CMAR3;
-				uint32_t RESERVED3;
-	volatile uint32_t CCR4;
-	volatile uint32_t CNDTR4;
-	volatile uint32_t CPAR4;
-	volatile uint32_t CMAR4;
-				uint32_t RESERVED4;
-	volatile uint32_t CCR5;
-	volatile uint32_t CNDTR5;
-	volatile uint32_t CPAR5;
-	volatile uint32_t CMAR5;
-				uint32_t RESERVED5;
-	volatile uint32_t CCR6;
-	volatile uint32_t CNDTR6;
-	volatile uint32_t CPAR6;
-	volatile uint32_t CMAR6;
-				uint32_t RESERVED6;
-	volatile uint32_t CCR7;
-	volatile uint32_t CNDTR7;
-	volatile uint32_t CPAR7;
-	volatile uint32_t CMAR7;
-				uint32_t RESERVED7;
-} DMA_Typedef;
+	volatile uint32_t ACR;
+	volatile uint32_t KEYR;
+	volatile uint32_t OPTKEYR;
+	volatile uint32_t SR;
+	volatile uint32_t CR;
+	volatile uint32_t OPTCR;
+} FLASH_Typedef;
 
-#define RCC_APB2ENR RCC->APB2ENR
-#define RCC_APB1ENR RCC->APB1ENR
+#define RCC_USART1EN_REGISTER RCC->APB2ENR
+	#define RCC_USART1EN (1 << 4)
 
-#define RCC_GPIOEN_REGISTER RCC_APB2ENR
-	#define RCC_AFIO  (1 << 0)
-	#define RCC_GPIOA (1 << 2)
-	#define RCC_GPIOB (1 << 3)
-	#define RCC_GPIOC (1 << 4)
-	#define RCC_GPIOD (1 << 5)
-	#define RCC_GPIOE (1 << 6)
-	#define RCC_GPIOF (1 << 7)
-	#define RCC_GPIOG (1 << 8)
+#define RCC_GPIOEN_REGISTER RCC->AHB1ENR
+	#define RCC_GPIOA (1 << 0)
+	#define RCC_GPIOB (1 << 1)
+	#define RCC_GPIOC (1 << 2)
+	#define RCC_GPIOD (1 << 3)
+#define RCC_TIM6EN_REGISTER RCC->APB1ENR
+#define RCC_TIM6EN (1 << 4)
+
 
 #define RCC_CR_PLLRDY (1 << 25)
 #define RCC_CR_PLLON (1 << 24)
@@ -221,9 +293,24 @@ typedef struct {
 #define RCC_CR_HSIRDY (1 << 1)
 #define RCC_CR_HSION (1 << 0)
 
-#define RCC_CFGR_MCO (1 << 24)
+#define RCC_PLLCFGR_PLLSRC (1 << 22)
+#define RCC_PLLCFGR_PLLP (16)
+#define RCC_PLLCFGR_PLLN (6)
+#define RCC_PLLCFGR_PLLM (0)
 
-#define RCC_APB2ENR_USART1EN (1 << 14)
+#define RCC_CFGR_MCO2 (1 << 30)
+#define RCC_CFGR_MCO2_SYSCLK 0x00
+#define RCC_CFGR_MCO2_PLLI2S 0x01
+#define RCC_CFGR_MCO2_HSE 0x10
+#define RCC_CFGR_MCO2_PLL 0x11
+#define RCC_CFGR_MCO1 (1 << 21)
+#define RCC_CFGR_MCO1_HSI 0x00
+#define RCC_CFGR_MCO1_LSE 0x01
+#define RCC_CFGR_MCO1_HSE 0x10
+#define RCC_CFGR_MCO1_PLL 0x11
+
+#define RCC_APB2ENR_USART1EN (1 << 4)
+#define RCC_APB2ENR_USART6EN (1 << 5)
 
 
 #define RCC_APB1ENR_I2C2EN (1 << 22)
@@ -232,6 +319,7 @@ typedef struct {
 #define RCC_APB1ENR_UART4EN (1 << 19)
 #define RCC_APB1ENR_USART3EN (1 << 18)
 #define RCC_APB1ENR_USART2EN (1 << 17)
+#define RCC_APB1ENR_SPI2EN (1 << 14)
 #define RCC_APB1ENR_TIM7EN (1 << 5)
 #define RCC_APB1ENR_TIM6EN (1 << 4)
 #define RCC_APB1ENR_TIM5EN (1 << 3)
@@ -239,9 +327,15 @@ typedef struct {
 #define RCC_APB1ENR_TIM3EN (1 << 1)
 #define RCC_APB1ENR_TIM2EN (1 << 0)
 
-#define USART1_CLK_EN (RCC->APB2ENR |= RCC_APB2ENR_USART1EN)
+#define RCC_APB2ENR_SDIOEN (1 << 11)
 
+#define GPIOA_CLK_EN (RCC_GPIOEN_REGISTER |= RCC_GPIOA)
+#define GPIOB_CLK_EN (RCC_GPIOEN_REGISTER |= RCC_GPIOB)
+#define GPIOC_CLK_EN (RCC_GPIOEN_REGISTER |= RCC_GPIOC)
+#define GPIOD_CLK_EN (RCC_GPIOEN_REGISTER |= RCC_GPIOD)
+#define USART1_CLK_EN (RCC->APB2ENR |= RCC_APB2ENR_USART1EN)
 #define USART2_CLK_EN (RCC->APB1ENR |= RCC_APB1ENR_USART2EN)
+#define SPI2_CLK_EN (RCC->APB1ENR |= RCC_APB1ENR_SPI2EN)
 #define I2C2_CLK_EN (RCC->APB1ENR |= RCC_APB1ENR_I2C2EN)
 #define I2C1_CLK_EN (RCC->APB1ENR |= RCC_APB1ENR_I2C1EN)
 #define TIM7_CLK_EN (RCC->APB1ENR |= RCC_APB1ENR_TIM7EN)
@@ -250,31 +344,57 @@ typedef struct {
 #define TIM4_CLK_EN (RCC->APB1ENR |= RCC_APB1ENR_TIM4EN)
 #define TIM3_CLK_EN (RCC->APB1ENR |= RCC_APB1ENR_TIM3EN)
 #define TIM2_CLK_EN (RCC->APB1ENR |= RCC_APB1ENR_TIM2EN)
-	
+
+#define SDIO_CLK_EN (RCC->APB2ENR |= RCC_APB2ENR_SDIOEN)
+
 typedef struct
 {
 	volatile uint32_t CR;        //0x00
+	volatile uint32_t PLLCFGR;
 	volatile uint32_t CFGR;
 	volatile uint32_t CIR;
+	volatile uint32_t AHB1RSTR;  //0x10
+	volatile uint32_t AHB2RSTR;
+	volatile uint32_t AHB3RSTR;
+	         uint32_t RESERVED1;
+	volatile uint32_t APB1RSTR;  //0x20
 	volatile uint32_t APB2RSTR;
-	volatile uint32_t APB1RSTR;  //0x10
-	volatile uint32_t AHBENR;
+             uint32_t RESERVED2;
+	         uint32_t RESERVED3;
+	volatile uint32_t AHB1ENR;   //0x30
+	volatile uint32_t AHB2ENR;
+	volatile uint32_t AHB3ENR;
+	         uint32_t RESERVED4;
+	volatile uint32_t APB1ENR;   //0x40
 	volatile uint32_t APB2ENR;
-	volatile uint32_t APB1ENR;  
-   volatile uint32_t BDCR;      
+	         uint32_t RESERVED5;
+	         uint32_t RESERVED6;
+	volatile uint32_t AHB1LPENR; //0x50
+	volatile uint32_t AHB2LPENR;
+	volatile uint32_t AHB3LPENR;
+	         uint32_t RESERVED7;
+	volatile uint32_t APB1LPENR; //0x60
+	volatile uint32_t APB2LPENR;
+            uint32_t RESERVED8;
+            uint32_t RESERVED9;
+   volatile uint32_t BDCR;      //0x70
    volatile uint32_t CSR;
+            uint32_t RESERVED10;
+            uint32_t RESERVED11;
+   volatile uint32_t SSCGR;     //0x80
+   volatile uint32_t PLLI2SCFGR;
 } RCC_Typedef;
 
-#define SysTick_CTRL_CLKSOURCE (1 << 2)
-#define SysTick_CTRL_TICKINT (1 << 1)
 #define SysTick_CTRL_ENABLE (1 << 0)
+#define SysTick_CTRL_TICKINT (1 << 1)
+#define SysTick_CTRL_CLKSOURCE (1 << 2)
 
 typedef struct {
 	volatile uint32_t CTRL;
 	volatile uint32_t LOAD;
 	volatile uint32_t VAL;
 	volatile uint32_t CALIB;
-}	SysTick_Typedef;
+} SysTick_Typedef;
 
 typedef struct {
 	volatile uint32_t ISER0; //0x0100
@@ -388,7 +508,7 @@ typedef struct {
 	volatile uint32_t IPR59;
 } NVIC_IPR_Typedef;
 
-#define NVIC_STIR (*((uint32_t*)(0xED000E00)))
+#define NVIC_STIR *((uint32_t*)(0xED000E00))
 
 #define PERIPH_BASE ((uint32_t)(0x40000000))
 	#define APB1PERIPH_BASE (PERIPH_BASE + 0x0000)
@@ -398,22 +518,21 @@ typedef struct {
 		#define TIM5_BASE (APB1PERIPH_BASE + 0x0C00)
 		#define TIM6_BASE (APB1PERIPH_BASE + 0x1000)
 		#define TIM7_BASE (APB1PERIPH_BASE + 0x1400)
+		#define SPI2_BASE (APB1PERIPH_BASE + 0x3800)
 		#define USART2_BASE (APB1PERIPH_BASE + 0x4400)
-		#define USART3_BASE (APB1PERIPH_BASE + 0x4800)
 		#define I2C1_BASE (APB1PERIPH_BASE + 0x5400)
 		#define I2C2_BASE (APB1PERIPH_BASE + 0x5800)
 	#define APB2PERIPH_BASE (PERIPH_BASE + 0x10000)
-		#define AFIO_BASE (APB2PERIPH_BASE + 0x0000)
-		#define EXTI_BASE (APB2PERIPH_BASE + 0x0400)
-		#define GPIOA_BASE (APB2PERIPH_BASE + 0x0800)
-		#define GPIOB_BASE (APB2PERIPH_BASE + 0x0C00)
-		#define GPIOC_BASE (APB2PERIPH_BASE + 0x1000)
-		#define GPIOD_BASE (APB2PERIPH_BASE + 0x1400)
-		#define USART1_BASE (APB2PERIPH_BASE + 0x3800)
-	#define AHBPERIPH_BASE (PERIPH_BASE + 0x18000)
-		#define DMA1_BASE	(AHBPERIPH_BASE + 0x8000)
-		#define DMA2_BASE (AHBPERIPH_BASE + 0x8400)
-		#define RCC_BASE (AHBPERIPH_BASE + 0x9000)
+		#define USART1_BASE (APB2PERIPH_BASE + 0x1000)
+		#define SDIO_BASE (APB2PERIPH_BASE + 0x2C00)
+		#define SPI1_BASE (APB2PERIPH_BASE + 0x3000)
+	#define AHB1PERIPH_BASE (PERIPH_BASE + 0x20000)
+		#define GPIOA_BASE (AHB1PERIPH_BASE + 0x0000)
+		#define GPIOB_BASE (AHB1PERIPH_BASE + 0x0400)
+		#define GPIOC_BASE (AHB1PERIPH_BASE + 0x0800)
+		#define GPIOD_BASE (AHB1PERIPH_BASE + 0x0C00)
+		#define RCC_BASE (AHB1PERIPH_BASE + 0x3800)
+		#define FLASH_BASE (AHB1PERIPH_BASE + 0x3C00)
 
 #define PRIV_PERIPH_BASE ((uint32_t)(0xE000E000))
 	#define SysTick_BASE (PRIV_PERIPH_BASE + 0x0010)
@@ -428,6 +547,7 @@ typedef struct {
 #define NVIC_ICPR ((NVIC_ICPR_Typedef*)(NVIC_ICPR_BASE))
 #define NVIC_IPR  ((NVIC_IPR_Typedef*)(NVIC_IPR_BASE))
 
+#define TIM1 ((GENERAL_TIM_Typedef*)(TIM1_BASE))
 #define TIM2 ((GENERAL_TIM_Typedef*)(TIM2_BASE))
 #define TIM3 ((GENERAL_TIM_Typedef*)(TIM3_BASE))
 #define TIM4 ((GENERAL_TIM_Typedef*)(TIM4_BASE))
@@ -439,14 +559,15 @@ typedef struct {
 
 #define USART1 ((USART_Typedef*)(USART1_BASE))
 #define USART2 ((USART_Typedef*)(USART2_BASE))
-#define USART3 ((USART_Typedef*)(USART3_BASE))
+#define SDIO ((SDIO_Typedef*)(SDIO_BASE))
+#define SPI1 ((SPI_Typedef*)(SPI1_BASE))
+#define SPI2 ((SPI_Typedef*)(SPI2_BASE))
 
-#define AFIO ((AFIO_Typedef*)(AFIO_BASE))
-#define EXTI ((EXTI_Typedef*)(EXTI_BASE))
 #define GPIOA ((GPIO_Typedef*)(GPIOA_BASE))
 #define GPIOB ((GPIO_Typedef*)(GPIOB_BASE))
 #define GPIOC ((GPIO_Typedef*)(GPIOC_BASE))
 #define GPIOD ((GPIO_Typedef*)(GPIOD_BASE))
 #define RCC ((RCC_Typedef*)(RCC_BASE))
+#define FLASH ((FLASH_Typedef*)(FLASH_BASE))
 
 #endif

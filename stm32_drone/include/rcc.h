@@ -24,17 +24,16 @@
 	#define APB1_CLK F_CPU
 #endif
 
-#define PLLRDY (1 << 25)
-#define PLLON (1 << 24)
-#define HSERDY (1 << 17)
-#define HSEON (1 << 16)
-#define HSIRDY (1 << 1)
-#define HSION (1 << 0)
+#define RCC_MCO_SYSCLK 0x4
+#define RCC_MCO_HSI 0x5
+#define RCC_MCO_HSE 0x6
+#define RCC_MCO_PLL_DIV_2 0x7
 
 void rcc_hse_enable();
 void rcc_hsi_disable();
 void rcc_pll_enable();
 void rcc_sys_clk_setup();
+void enableMCO(uint8_t clk);
 void rcc_io_enable(uint16_t port);
 void rcc_i2c1_enable();
 void rcc_usart1_enable();

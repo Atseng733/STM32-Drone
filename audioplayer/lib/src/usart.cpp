@@ -10,29 +10,14 @@ void usart::Init(USART_Typedef* usartx, uint32_t baud, uint8_t mode) {
 
 	if(USARTx == USART1) {
 		USART1_CLK_EN;
-		pinMode(GPIOA, 9, OUTPUT);
-		pinConfig(GPIOA, 9, AFO_PP); //set PA9 to usart tx alternate function
-		pinMode(GPIOA, 10, INPUT);
-		pinConfig(GPIOA, 10, INPUT_PUPD); //set PA10 to usart tx alternate function
-		writeHigh(GPIOA, 10);
-
-		USARTx->BRR = (BRR_MANTISSA(USARTDIV(baud, F_CPU)) << 4) | BRR_FRACTION(USARTDIV(baud, F_CPU));
+		USARTx->BRR = (BRR_MANTISSA(USARTDIV(baud, APB2_CLK)) << 4) | BRR_FRACTION(USARTDIV(baud, APB2_CLK));
 	}
 	else if(USARTx == USART2) {
 		USART2_CLK_EN;
-		pinMode(GPIOA, 2, OUTPUT);
-		pinConfig(GPIOA, 2, AFO_PP); //set PA2 to usart tx alternate function
-		pinMode(GPIOA, 3, INPUT);
-		pinConfig(GPIOA, 3, INPUT_PUPD); //set PA3 to usart rx input
-		writeHigh(GPIOA, 3);
-
 		USARTx->BRR = (BRR_MANTISSA(USARTDIV(baud, APB1_CLK)) << 4) | BRR_FRACTION(USARTDIV(baud, APB1_CLK));
 	}
-	USARTx->CR1 |= USART_CR1_UE; //enable usart
 
-	//set baudrate register
-	
-	//(*usart_config).USARTx->BRR = 0x00D0;
+	USARTx->CR1 |= USART_CR1_UE; //enable usart
 
 	switch(mode) {
 		case USART_MODE_TX:

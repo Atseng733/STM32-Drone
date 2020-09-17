@@ -1,13 +1,13 @@
 #include <rcc.h>
 
 void rcc_hse_enable() {
-	RCC->CR |= HSEON; //set HSEON bit
-	while(!(RCC->CR & HSERDY)); //wait for stable clock
+	RCC->CR |= RCC_CR_HSEON; //set HSEON bit
+	while(!(RCC->CR & RCC_CR_HSERDY)); //wait for stable clock
 }
 
 void rcc_hsi_disable() {
-	RCC->CR &= ~HSION;
-	while(RCC->CR & HSIRDY);
+	RCC->CR &= ~RCC_CR_HSION;
+	while(RCC->CR & RCC_CR_HSIRDY);
 }
 
 void rcc_pll_enable() {
@@ -20,23 +20,10 @@ void rcc_pll_enable() {
 	if(APB1_PSC) { //set apb1 peripheral prescaler to 2 if F_CPU exceeds 36MHz
 		RCC->CFGR |= (0x4 << 8);
 	}
-	RCC->CR |= PLLON; //enable pll
-	while(RCC->CR & PLLRDY); //wait until pll clock is ready
+	RCC->CR |= RCC_CR_PLLON; //enable pll
+	while(!(RCC->CR & RCC_CR_PLLRDY)); //wait until pll clock is ready
 	RCC->CFGR &= ~0x3;
 	RCC->CFGR |= 0x2; //select pll as system clock
-
-	/*rcc_hse_enable();
-	RCC->CFGR |= (1 << 17); //divide HSE pll entry by 2
-	RCC->CFGR |= (1 << 16); //select hse as pll clock source
-	RCC->CFGR |= (10 << 18); //select pll multiplier
-	
-	//set apb1 peripheral prescaler to 2 if F_CPU exceeds 36MHz
-	RCC->CFGR |= (0x4 << 8);
-
-	RCC->CR |= PLLON; //enable pll
-	while(RCC->CR & PLLRDY); //wait until pll clock is ready
-	RCC->CFGR &= ~0x3;
-	RCC->CFGR |= 0x2; //select pll as system clock*/
 }
 
 void rcc_sys_clk_setup() {
@@ -46,6 +33,13 @@ void rcc_sys_clk_setup() {
 	else if(!PLL_EN) {
 		rcc_hse_enable();
 	}
+}
+
+void enableMCO(uint8_t clk) {
+	pinMode(GPIOA, 8, OUTPUT_HIGH_SPEED);
+	pinConfig(GPIOA, 8, AFO_PP);
+	RCC->CFGR &= ~(7 << 24);
+	RCC->CFGR |= (clk << 24);
 }
 
 
