@@ -22,7 +22,6 @@ typedef struct {
 	volatile uint32_t CNT;
 	volatile uint32_t PSC;
 	volatile uint32_t ARR;
-
 } BASIC_TIM_Typedef;
 
 #define TIM_CR1_OPM (1 << 3)

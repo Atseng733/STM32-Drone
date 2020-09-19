@@ -16,7 +16,4 @@
 
 #define M_PI (atan(1)*4)
 
-void read_sensor_data();
-void calibrate_sensors();
-
 #endif

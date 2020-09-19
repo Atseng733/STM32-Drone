@@ -36,6 +36,4 @@ class i2c {
 		void Read(uint8_t slaAddr, uint8_t regAddr, uint8_t* dest, uint16_t len);
 };
 
-extern i2c I2C;
-
 #endif

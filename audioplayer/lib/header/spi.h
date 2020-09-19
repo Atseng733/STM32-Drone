@@ -20,5 +20,6 @@ uint8_t SPI_Tx(SPI_Struct* pSPI_Struct, uint16_t data);
 uint8_t SPI_Tx(SPI_Struct* pSPI_Struct, uint16_t* data, uint8_t count);
 uint16_t SPI_Rx(SPI_Struct* pSPI_Struct);
 uint16_t* SPI_Rx(SPI_Struct* pSPI_Struct, uint16_t* dest, uint8_t count);
+void SetClockPSC(SPI_Struct* pSPI_Struct, uint8_t psc);
 
 #endif

@@ -20,21 +20,25 @@
 
 #define RX_BUFFER_SIZE 0x7F //make sure it's something like 0b11111111 not 0b11011111
 
+typedef struct {
+	USART_Typedef* USARTx;
+	uint8_t RxBuffer[RX_BUFFER_SIZE];
+	uint16_t RxLen;
+	uint8_t RxBuffer_w;
+	uint8_t RxBuffer_r;
+} USART_Struct;
+
 class usart {
 	private:
-		USART_Typedef* USARTx;
-		uint8_t RxBuffer[RX_BUFFER_SIZE];
-		uint16_t RxLen;
-		uint8_t RxBuffer_w;
-		uint8_t RxBuffer_r;
+		USART_Struct* pUSART_Struct;
 	public:
-		void Init(USART_Typedef* usartx, uint32_t baud, uint8_t mode);
+		void Init(USART_Struct* pusart_struct, uint32_t baud, uint8_t mode);
 		void USART_InterruptEnable();
 		uint8_t GetFlagStatus(uint32_t reg, uint32_t flag);
 		void printc(char c);
 		void print(char* str);
 		void println(char* str);
-		void println(int64_t num, uint8_t base);
+		void println(int32_t num, uint8_t base);
 		void printd(double d, uint8_t prec);
 		void sendIT(char* str);
 		void receiveIT();

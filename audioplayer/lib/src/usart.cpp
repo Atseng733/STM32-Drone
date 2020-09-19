@@ -4,40 +4,40 @@ usart Serial2;
 
 volatile bool dataReady;
 
-void usart::Init(USART_Typedef* usartx, uint32_t baud, uint8_t mode) {
-	USARTx = usartx;
+void usart::Init(USART_Struct* pusart_struct, uint32_t baud, uint8_t mode) {
+	pUSART_Struct = pusart_struct;
 	dataReady = false;
 
-	if(USARTx == USART1) {
+	if(pUSART_Struct->USARTx == USART1) {
 		USART1_CLK_EN;
-		USARTx->BRR = (BRR_MANTISSA(USARTDIV(baud, APB2_CLK)) << 4) | BRR_FRACTION(USARTDIV(baud, APB2_CLK));
+		pUSART_Struct->USARTx->BRR = (BRR_MANTISSA(USARTDIV(baud, APB2_CLK)) << 4) | BRR_FRACTION(USARTDIV(baud, APB2_CLK));
 	}
-	else if(USARTx == USART2) {
+	else if(pUSART_Struct->USARTx == USART2) {
 		USART2_CLK_EN;
-		USARTx->BRR = (BRR_MANTISSA(USARTDIV(baud, APB1_CLK)) << 4) | BRR_FRACTION(USARTDIV(baud, APB1_CLK));
+		pUSART_Struct->USARTx->BRR = (BRR_MANTISSA(USARTDIV(baud, APB1_CLK)) << 4) | BRR_FRACTION(USARTDIV(baud, APB1_CLK));
 	}
 
-	USARTx->CR1 |= USART_CR1_UE; //enable usart
+	pUSART_Struct->USARTx->CR1 |= USART_CR1_UE; //enable usart
 
 	switch(mode) {
 		case USART_MODE_TX:
-			USARTx->CR1 |= USART_CR1_TE; //enable the transmitter
+			pUSART_Struct->USARTx->CR1 |= USART_CR1_TE; //enable the transmitter
 			break;
 		case USART_MODE_RX:
-			USARTx->CR1 |= USART_CR1_RE; //enable the receiver
+			pUSART_Struct->USARTx->CR1 |= USART_CR1_RE; //enable the receiver
 			break;
 		case USART_MODE_TXRX:
-			USARTx->CR1 |= USART_CR1_TE; //enable both
-			USARTx->CR1 |= USART_CR1_RE; 
+			pUSART_Struct->USARTx->CR1 |= USART_CR1_TE; //enable both
+			pUSART_Struct->USARTx->CR1 |= USART_CR1_RE; 
 			break;
 	}
 }
 
 void usart::USART_InterruptEnable() {
-	if(USARTx == USART1) {
+	if(pUSART_Struct->USARTx == USART1) {
 		enableInterrupt(37);
 	}
-	else if(USARTx == USART2) {
+	else if(pUSART_Struct->USARTx == USART2) {
 		enableInterrupt(38);
 	}
 }
@@ -47,59 +47,58 @@ uint8_t usart::GetFlagStatus(uint32_t reg, uint32_t flag) {
 }
 
 void usart::printc(char c) {
-	while(!GetFlagStatus(USARTx->SR, USART_SR_TXE));
-	USARTx->DR = c;
+	while(!GetFlagStatus(pUSART_Struct->USARTx->SR, USART_SR_TXE));
+	pUSART_Struct->USARTx->DR = c;
 }
 
 void usart::print(char* str) {
 	while(*str != 0) {
-		while(!GetFlagStatus(USARTx->SR, USART_SR_TXE)); //wait until data register empty
-		USARTx->DR = *(str++); //send data
+		while(!GetFlagStatus(pUSART_Struct->USARTx->SR, USART_SR_TXE)); //wait until data register empty
+		pUSART_Struct->USARTx->DR = *(str++); //send data
 	}
 
-	while(!GetFlagStatus(USARTx->SR, USART_SR_TC));
+	while(!GetFlagStatus(pUSART_Struct->USARTx->SR, USART_SR_TC));
 }
 
 void usart::println(char* str) {
 	while(*str != 0) {
-		while(!GetFlagStatus(USARTx->SR, USART_SR_TXE)); //wait until data register empty
-		USARTx->DR = *(str++); //send data
+		while(!GetFlagStatus(pUSART_Struct->USARTx->SR, USART_SR_TXE)); //wait until data register empty
+		pUSART_Struct->USARTx->DR = *(str++); //send data
 	}
 
-	while(!GetFlagStatus(USARTx->SR, USART_SR_TXE));
-	USARTx->DR = '\n';
+	while(!GetFlagStatus(pUSART_Struct->USARTx->SR, USART_SR_TXE));
+	pUSART_Struct->USARTx->DR = '\n';
 
-	while(!GetFlagStatus(USARTx->SR, USART_SR_TC));
+	while(!GetFlagStatus(pUSART_Struct->USARTx->SR, USART_SR_TC));
 }
 
-void usart::println(int64_t num, uint8_t base) {
-	println(itoa(stdlib_str, num, base));
+void usart::println(int32_t num, uint8_t base) {
+	char str[32];
+	println(itoa(str, num, base));
 }
 
 void usart::printd(double d, uint8_t prec) {
-	println(dtoa(stdlib_str, d, prec));
+	char str[32];
+	println(dtoa(str, d, prec));
 }
 
 void usart::sendIT(char* str) {
 	USART_InterruptEnable();
-	USARTx->CR1 |= USART_CR1_TXEIE;
+	pUSART_Struct->USARTx->CR1 |= USART_CR1_TXEIE;
 }
 
 void usart::receiveIT() {
 	USART_InterruptEnable();
-	USARTx->CR1 |= USART_CR1_RXNEIE;
+	pUSART_Struct->USARTx->CR1 |= USART_CR1_RXNEIE;
 }
 
 void usart::read(uint8_t* data, uint16_t len) {
 	uint16_t i = 0;
 	uint8_t temp;
-	/*while(RxBuffer_w != RxBuffer_r) {
-		*(data++) = RxBuffer[RxBuffer_r++];
-		RxBuffer_r &= RX_BUFFER_SIZE;
-	}*/
+
 	while(i < len) {
-		temp = RxBuffer[RxBuffer_r++];
-		RxBuffer_r &= RX_BUFFER_SIZE;
+		temp = pUSART_Struct->RxBuffer[pUSART_Struct->RxBuffer_r++];
+		pUSART_Struct->RxBuffer_r &= RX_BUFFER_SIZE;
 		data[i++] = temp;
 	}
 }
@@ -114,8 +113,8 @@ int usart::readSync(uint8_t* data, uint16_t len, uint8_t syncByte) {
 	}
 
 	while(i < len) {
-		temp = RxBuffer[RxBuffer_r++];
-		RxBuffer_r &= RX_BUFFER_SIZE;
+		temp = pUSART_Struct->RxBuffer[pUSART_Struct->RxBuffer_r++];
+		pUSART_Struct->RxBuffer_r &= RX_BUFFER_SIZE;
 
 	 	if (temp == syncByte)
 	 	{
@@ -135,16 +134,16 @@ int usart::readSync(uint8_t* data, uint16_t len, uint8_t syncByte) {
 void usart::USART_ISR() {
 	uint8_t temp;
 
-	if(GetFlagStatus(USARTx->CR1, USART_CR1_TXEIE)) {
-		if(GetFlagStatus(USARTx->SR, USART_SR_TXE)) {
-			USARTx->DR = 'c';
+	if(GetFlagStatus(pUSART_Struct->USARTx->CR1, USART_CR1_TXEIE)) {
+		if(GetFlagStatus(pUSART_Struct->USARTx->SR, USART_SR_TXE)) {
+			pUSART_Struct->USARTx->DR = 'c';
 		}
 	}
 	
-	if(GetFlagStatus(USARTx->CR1, USART_CR1_RXNEIE)) {
-		if(GetFlagStatus(USARTx->SR, USART_SR_RXNE)) {
-			RxBuffer[RxBuffer_w++] = USARTx->DR;
-			RxBuffer_w &= RX_BUFFER_SIZE;
+	if(GetFlagStatus(pUSART_Struct->USARTx->CR1, USART_CR1_RXNEIE)) {
+		if(GetFlagStatus(pUSART_Struct->USARTx->SR, USART_SR_RXNE)) {
+			pUSART_Struct->RxBuffer[pUSART_Struct->RxBuffer_w++] = pUSART_Struct->USARTx->DR;
+			pUSART_Struct->RxBuffer_w &= RX_BUFFER_SIZE;
 			dataReady = true;
 		}
 	}

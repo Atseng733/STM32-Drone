@@ -8,12 +8,13 @@ void ssd1306::ssd1306_command(uint8_t c)
 {
 	// I2C
 	uint8_t control = 0x00;   // Co = 0, D/C = 0
-	I2C.Write(addr, control, c); //Set direction
+	pI2C->Write(addr, control, c); //Set direction
 }
 
-void ssd1306::begin(uint8_t sAddr)
+void ssd1306::begin(uint8_t sAddr, i2c* pi2c)
 {
 	addr = sAddr;
+	pI2C = pi2c;
 	CURSOR_LOC = 0;
 	text_size = 1;
 	// Init sequence
@@ -64,7 +65,7 @@ void ssd1306::display(void)
 	ssd1306_command(0); // Page start address (0 = reset)
 	ssd1306_command(3); // Page end address
 
-	I2C.Write(addr, 0x40, ssd1306_buffer, 512);
+	pI2C->Write(addr, 0x40, ssd1306_buffer, 512);
 }
 
 void ssd1306::clearDisplay() {

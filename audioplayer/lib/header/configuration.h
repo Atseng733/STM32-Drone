@@ -6,4 +6,6 @@
 
 #define PLL_CLK_SRC 1 //0: high speed internal		1: high speed external
 
+#define USART1_ENABLE 1;
+
 #endif

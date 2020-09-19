@@ -185,9 +185,6 @@ DECLARE_HANDLER(IRQ80)
 DECLARE_HANDLER(IRQ81)
 
 void enableInterrupt(uint8_t IRQx);
-void enableAllInterrupts();
 void disableInterrupt(uint8_t IRQx);
-void disableAllInterrupts();
-
 
 #endif

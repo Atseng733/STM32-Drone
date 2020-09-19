@@ -10,6 +10,7 @@ class ssd1306 {
 		uint8_t addr;
 		uint8_t ssd1306_buffer[0x200];
 		uint16_t inc_CURSOR_LOC(uint8_t inc);
+		i2c* pI2C;
 	public:
 		ssd1306() {}
 		uint16_t CURSOR_LOC;
@@ -18,7 +19,7 @@ class ssd1306 {
 		uint8_t text_size;
 		uint8_t get_addr();
 		void ssd1306_command(uint8_t c);
-		void begin(uint8_t sAddr);
+		void begin(uint8_t sAddr, i2c* pi2c);
 		void clearDisplay(void);
 		void display(void) ;
 		
