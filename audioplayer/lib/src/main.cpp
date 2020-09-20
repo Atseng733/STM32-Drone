@@ -2,7 +2,7 @@
 spi_sd SD1;
 SPI_Struct SPI2_Struct;
 USART_Struct USART1_Struct;
-
+SPI_SD_Struct SPI_SD1_Struct;
 int main(void) {
 	rcc_sys_clk_setup();
 	GPIOA_CLK_EN;
@@ -43,7 +43,9 @@ int main(void) {
 
 	SPI2_Struct.CR1 &= ~(0x7 << SPI_CR1_BR);
 	SPI2_Struct.CR1 |= (0x0 << SPI_CR1_BR);
-	SD1.Init(&SPI2_Struct);
+
+	SPI_SD1_Struct.pSPI_Struct = &SPI2_Struct;
+	SD1.Init(&SPI_SD1_Struct);
 	SetClockPSC(&SPI2_Struct, 0b1);
 	//for(int i = 0; i < 6000; i++) {
 	//	Serial1.print("Sector "); Serial1.println(i, 10);
@@ -53,6 +55,7 @@ int main(void) {
 	//SD1.ReadBlock(148154);
 	//SD1.ReadBlock(2047);
 	SD1.GetPartitionData();
+	SD1.ScanDir(SPI_SD1_Struct.DataStartSector);
 	/*for(uint8_t ui: blockData){
 		Serial1.println(ui, 16);
 	}*/

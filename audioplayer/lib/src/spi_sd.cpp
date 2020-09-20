@@ -1,19 +1,19 @@
 #include <spi_sd.h>
 
-void spi_sd::Init(SPI_Struct* spi_struct) {
-	pSPI_Struct = spi_struct;
+void spi_sd::Init(SPI_SD_Struct* pspi_sd_struct) {
+	pSPI_SD_Struct = pspi_sd_struct;
 
 	Serial1.println("\nInitializing...");
 	uint16_t response[5];
 
 	/*place sd card in SPI mode by setting mosi and cs high and toggling clk for 74 cycles*/
-	writeHigh(pSPI_Struct->NSS_PORT, pSPI_Struct->NSS_PIN);
+	writeHigh(pSPI_SD_Struct->pSPI_Struct->NSS_PORT, pSPI_SD_Struct->pSPI_Struct->NSS_PIN);
 	for(int i = 0; i < 10; i++) {
-		SPI_Tx(pSPI_Struct, 0xFF);
+		SPI_Tx(pSPI_SD_Struct->pSPI_Struct, 0xFF);
 	}
 
 	/*then set cs low and send CMD0 0x4000'0000'0095*/
-	writeLow(pSPI_Struct->NSS_PORT, pSPI_Struct->NSS_PIN);
+	writeLow(pSPI_SD_Struct->pSPI_Struct->NSS_PORT, pSPI_SD_Struct->pSPI_Struct->NSS_PIN);
 	Serial1.println("\nSending Command 0...");
 	Send_CMD0();
 
@@ -80,7 +80,7 @@ void spi_sd::ReadBlock(uint32_t sector, uint8_t* dest) {
 	response = GetResponse8();
 
 	while(1) {
-		response = SPI_Rx(pSPI_Struct);
+		response = SPI_Rx(pSPI_SD_Struct->pSPI_Struct);
 		//Serial1.println(response, 16);
 		if(response == 0xFE) {
 			receiveData = true;
@@ -90,23 +90,23 @@ void spi_sd::ReadBlock(uint32_t sector, uint8_t* dest) {
 
 	if(receiveData) {
 		for(int i = 0; i < 512; i++) {
-			dest[i] = SPI_Rx(pSPI_Struct);
+			dest[i] = SPI_Rx(pSPI_SD_Struct->pSPI_Struct);
 		}
 
-		SPI_Rx(pSPI_Struct);
-		SPI_Rx(pSPI_Struct);
+		SPI_Rx(pSPI_SD_Struct->pSPI_Struct);
+		SPI_Rx(pSPI_SD_Struct->pSPI_Struct);
 	}
 
 }
 
 void spi_sd::Send_CMD0() {
 	uint16_t CMD0[6] = {0x40, 0x00, 0x00, 0x00, 0x00, 0x95};
-	SPI_Tx(pSPI_Struct, CMD0, 6);
+	SPI_Tx(pSPI_SD_Struct->pSPI_Struct, CMD0, 6);
 }
 
 void spi_sd::Send_CMD8() {
 	uint16_t CMD8[6] = {0x48, 0x00, 0x00, 0x01, 0xAA, 0x87};
-	SPI_Tx(pSPI_Struct, CMD8, 6);
+	SPI_Tx(pSPI_SD_Struct->pSPI_Struct, CMD8, 6);
 }
 
 void spi_sd::Send_CMD16(uint32_t arg) {
@@ -117,7 +117,7 @@ void spi_sd::Send_CMD16(uint32_t arg) {
 	CMD16[3] = (arg >> 8) & 0x000000FF;
 	CMD16[4] = (arg & 0x000000FF);
 	CMD16[5] = 0xFF;
-	SPI_Tx(pSPI_Struct, CMD16, 6);
+	SPI_Tx(pSPI_SD_Struct->pSPI_Struct, CMD16, 6);
 }
 
 void spi_sd::Send_CMD17(uint32_t arg) {
@@ -128,22 +128,22 @@ void spi_sd::Send_CMD17(uint32_t arg) {
 	CMD17[3] = (arg >> 8) & 0xFF;
 	CMD17[4] = (arg & 0xFF);
 	CMD17[5] = 0x01;
-	SPI_Tx(pSPI_Struct, CMD17, 6);
+	SPI_Tx(pSPI_SD_Struct->pSPI_Struct, CMD17, 6);
 }
 
 void spi_sd::Send_CMD41() {
 	uint16_t CMD41[6] = {0x69, 0x40, 0x00, 0x00, 0x00, 0x01};
-	SPI_Tx(pSPI_Struct, CMD41, 6);
+	SPI_Tx(pSPI_SD_Struct->pSPI_Struct, CMD41, 6);
 }
 
 void spi_sd::Send_CMD55() {
 	uint16_t CMD55[6] = {0x77, 0x00, 0x00, 0x00, 0x00, 0x01};
-	SPI_Tx(pSPI_Struct, CMD55, 6);
+	SPI_Tx(pSPI_SD_Struct->pSPI_Struct, CMD55, 6);
 }
 
 void spi_sd::Send_CMD58() {
 	uint16_t CMD58[6] = {0x7A, 0x00, 0x00, 0x00, 0x00, 0x95};
-	SPI_Tx(pSPI_Struct, CMD58, 6);
+	SPI_Tx(pSPI_SD_Struct->pSPI_Struct, CMD58, 6);
 }
 
 uint16_t spi_sd::GetResponse8() {
@@ -151,7 +151,7 @@ uint16_t spi_sd::GetResponse8() {
 	uint16_t response;
 
 	while(i < 16) {
-		response = SPI_Rx(pSPI_Struct);
+		response = SPI_Rx(pSPI_SD_Struct->pSPI_Struct);
 		if((response >> 7) & 1) {
 			i++;
 		}
@@ -166,25 +166,130 @@ uint16_t spi_sd::GetResponse8() {
 void spi_sd::GetResponse40(uint16_t* dest) {
 	dest[0] = GetResponse8();
 	for(int i = 1; i < 5; i++) {
-		dest[i] = SPI_Rx(pSPI_Struct);
+		dest[i] = SPI_Rx(pSPI_SD_Struct->pSPI_Struct);
 	}
 }
 
 
 void spi_sd::clockCycle(uint8_t n) {
 	for(int i = 0; i < n; i++) {
-		SPI_Tx(pSPI_Struct, 0xFF);
+		SPI_Tx(pSPI_SD_Struct->pSPI_Struct, 0xFF);
 	}
 }
 
-void spi_sd::GetPartitionData() {
-	ReadBlock(0, buf);
+uint8_t spi_sd::GetPartitionData() {
+	ReadBlock(0, pSPI_SD_Struct->dataBuf);
+	pSPI_SD_Struct->PT1_StartSector = 0;
 
-	if(((buf[MBR_Sig + 1] << 8) | buf[MBR_Sig]) == 0xAA55) {
-		for(int i = 0; i < 512; i++) {
-			Serial1.println(buf[i], 16);
+	if(CheckBootSign()) {
+		for(uint8_t i = 0; i < 4; i++) {
+			GetValue(&(pSPI_SD_Struct->PT1_StartSector), MBR_Partition1 + PT_LbaOfs, 4);
 		}
+
+		Serial1.println(pSPI_SD_Struct->PT1_StartSector, 10);
+	}
+	else {
+		Serial1.println("MBR error");
+		return 0;
 	}
 
-	PT1_StartSector = buf[446];
+	ReadBlock(pSPI_SD_Struct->PT1_StartSector, pSPI_SD_Struct->dataBuf);
+	dumpBuf();
+	if(CheckBootSign()) {
+		uint32_t FATSz32;
+		GetValue(&FATSz32, BPB_FATSz32, 4);
+		uint8_t NumFATs;
+		GetValue(&NumFATs, BPB_NumFATs, 1);
+		uint16_t RsvdSecCnt;
+		GetValue(&RsvdSecCnt, BPB_RsvdSecCnt, 2);
+		uint32_t HiddSec;
+		GetValue(&HiddSec, BPB_HiddSec, 4);
+		pSPI_SD_Struct->DataStartSector = (FATSz32 * NumFATs) + RsvdSecCnt + HiddSec;
+
+		//GetValue(&(pSPI_SD_Struct->SecPerClus), 12, 1);
+		pSPI_SD_Struct->SecPerClus = pSPI_SD_Struct->dataBuf[13];
+	}
+	else {
+		Serial1.println("Boot Sector error");
+		return 0;
+	}
+
+	return 1;
+}
+
+uint8_t spi_sd::CheckBootSign() {
+	return (((pSPI_SD_Struct->dataBuf[MBR_Sig + 1] << 8) | pSPI_SD_Struct->dataBuf[MBR_Sig]) == 0xAA55);
+}
+
+template <typename T> T spi_sd::GetValue(T* type, uint16_t offset, uint8_t n) {
+	for(uint8_t i = 0; i < n; i++) {
+		*type |= pSPI_SD_Struct->dataBuf[offset + i] << (i * 8);
+	}
+
+	return *type;
+}
+
+void spi_sd::GetAttrNum() {
+	ReadBlock(pSPI_SD_Struct->DataStartSector, pSPI_SD_Struct->dataBuf);
+	for(int i = 0; i < 512; i += 32) {
+		if(pSPI_SD_Struct->dataBuf[i] == 0x00) {
+			Serial1.println("No more entries");
+			break;
+		}
+		else if(pSPI_SD_Struct->dataBuf[i] != 0xE5) {
+			if(pSPI_SD_Struct->dataBuf[i + DIR_Attr] == 0x10) {
+
+			}
+			for(int k = 0; k < 8; k++) {
+				Serial1.printc(pSPI_SD_Struct->dataBuf[i + k]);
+			}
+			Serial1.println("");
+		}
+	}
+}
+
+void spi_sd::ScanDir(uint32_t sector) {
+	int i = 0;
+
+	while(pSPI_SD_Struct->dataBuf[i % 512] != 0x00) {
+		if(i % 512 == 0) {
+			ReadBlock(sector + (i / 512), pSPI_SD_Struct->dataBuf);
+		}
+
+		if(pSPI_SD_Struct->dataBuf[i] != 0xE5 && pSPI_SD_Struct->dataBuf[i] != 0x2E) {
+			if(pSPI_SD_Struct->dataBuf[(i % 512) + DIR_Attr] == 0x10) {
+				if(1 == 1) {
+					Serial1.println(pSPI_SD_Struct->dirDepth, 10);
+				}
+				for(int k = 0; k < 8; k++) {
+					Serial1.printc(pSPI_SD_Struct->dataBuf[(i % 512) + k]);
+				}
+				Serial1.println("");
+				Serial1.println("");
+
+				uint32_t startSector;
+				GetValue(&startSector, (i % 512) + DIR_FstClusHI, 2);
+				startSector = startSector << 16;
+				GetValue(&startSector, (i % 512) + DIR_FstClusLO, 2);
+
+				startSector -= 2;
+				startSector *= pSPI_SD_Struct->SecPerClus;
+				startSector += pSPI_SD_Struct->DataStartSector;
+
+				pSPI_SD_Struct->dirDepth++;
+				ScanDir(startSector);
+				pSPI_SD_Struct->dirDepth--;
+
+				ReadBlock(sector + (i / 512), pSPI_SD_Struct->dataBuf);
+			}
+		}
+
+		i += 32;
+	}
+}
+
+void spi_sd::dumpBuf() {
+	for(uint8_t i: pSPI_SD_Struct->dataBuf) {
+		Serial1.println(i, 16);
+	}
 }
