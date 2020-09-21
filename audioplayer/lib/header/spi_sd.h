@@ -66,6 +66,15 @@
 #define DIR_FstClusLO 26
 #define DIR_FileSize 28
 
+#define LDIR_Ord 0
+#define LDIR_Name1 1
+#define LDIR_Attr 11
+#define LDIR_Type 12
+#define LDIR_Chksum 13
+#define LDIR_Name2 14
+#define LDIR_FstClusLO 26
+#define LDIR_Name3 28
+
 typedef struct {
 	SPI_Struct* pSPI_Struct;
 	uint8_t dataBuf[512];
@@ -96,7 +105,6 @@ public:
 	uint8_t GetPartitionData();
 	uint8_t CheckBootSign();
 	template <typename T> T GetValue(T* type, uint16_t offset, uint8_t n);
-	void GetAttrNum();
 	void ScanDir(uint32_t sector);
 	void dumpBuf();
 };

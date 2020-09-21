@@ -1,7 +1,5 @@
 #include <i2c.h>
 
-i2c I2C;
-
 void i2c::Start() {
 	I2Cx->CR1 |= I2C_CR1_START;
 }

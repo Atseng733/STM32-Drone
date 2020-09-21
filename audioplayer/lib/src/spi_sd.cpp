@@ -2,6 +2,7 @@
 
 void spi_sd::Init(SPI_SD_Struct* pspi_sd_struct) {
 	pSPI_SD_Struct = pspi_sd_struct;
+	pSPI_SD_Struct->dirDepth = 0;
 
 	Serial1.println("\nInitializing...");
 	uint16_t response[5];
@@ -229,42 +230,66 @@ template <typename T> T spi_sd::GetValue(T* type, uint16_t offset, uint8_t n) {
 	return *type;
 }
 
-void spi_sd::GetAttrNum() {
-	ReadBlock(pSPI_SD_Struct->DataStartSector, pSPI_SD_Struct->dataBuf);
-	for(int i = 0; i < 512; i += 32) {
-		if(pSPI_SD_Struct->dataBuf[i] == 0x00) {
-			Serial1.println("No more entries");
-			break;
-		}
-		else if(pSPI_SD_Struct->dataBuf[i] != 0xE5) {
-			if(pSPI_SD_Struct->dataBuf[i + DIR_Attr] == 0x10) {
-
-			}
-			for(int k = 0; k < 8; k++) {
-				Serial1.printc(pSPI_SD_Struct->dataBuf[i + k]);
-			}
-			Serial1.println("");
-		}
-	}
-}
-
 void spi_sd::ScanDir(uint32_t sector) {
 	int i = 0;
+	ReadBlock(sector, pSPI_SD_Struct->dataBuf);
 
 	while(pSPI_SD_Struct->dataBuf[i % 512] != 0x00) {
-		if(i % 512 == 0) {
-			ReadBlock(sector + (i / 512), pSPI_SD_Struct->dataBuf);
-		}
+		if(pSPI_SD_Struct->dataBuf[i % 512] != 0xE5 && pSPI_SD_Struct->dataBuf[i % 512] != 0x2E) {
+			if(pSPI_SD_Struct->dataBuf[(i % 512) + DIR_Attr] == 0x0F && (pSPI_SD_Struct->dataBuf[i % 512] & (1 << 6))) {
+				uint8_t LFN_Entries = pSPI_SD_Struct->dataBuf[i % 512] - 0x40;
+				uint32_t LFN_End = (LFN_Entries - 1) * 32 + i;
 
-		if(pSPI_SD_Struct->dataBuf[i] != 0xE5 && pSPI_SD_Struct->dataBuf[i] != 0x2E) {
-			if(pSPI_SD_Struct->dataBuf[(i % 512) + DIR_Attr] == 0x10) {
-				if(1 == 1) {
-					Serial1.println(pSPI_SD_Struct->dirDepth, 10);
+				for(int j = 0; j < pSPI_SD_Struct->dirDepth; j++) {
+					Serial1.print("\t");
 				}
+				Serial1.print("-");
+
+				for(int k = LFN_End; k > (LFN_End - (32*LFN_Entries)); k -= 32) {
+					ReadBlock(sector + (k / 512), pSPI_SD_Struct->dataBuf);
+
+					for(int j = 0; j < 5; j++) {
+						if(pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name1 + (j * 2)] != 0x00 && pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name1 + (j * 2)] != 0xFF) {
+							Serial1.printc(pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name1 + (j * 2)]);
+						}
+					}
+					for(int j = 0; j < 6; j++) {
+						if(pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name2 + (j * 2)] != 0x00 && pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name2 + (j * 2)] != 0xFF) {
+							Serial1.printc(pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name2 + (j * 2)]);
+						}
+					}
+					for(int j = 0; j < 2; j++) {
+						if(pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name3 + (j * 2)] != 0x00 && pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name3 + (j * 2)] != 0xFF) {
+							Serial1.printc(pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name3 + (j * 2)]);
+						}
+					}
+				}
+				Serial1.println("");
+
+				ReadBlock(sector + ((LFN_End + 32) / 512), pSPI_SD_Struct->dataBuf);
+				if(pSPI_SD_Struct->dataBuf[((LFN_End + 32) % 512) + DIR_Attr] == 0x10) {
+					uint32_t startSector;
+					GetValue(&startSector, ((LFN_End + 32) % 512) + DIR_FstClusHI, 2);
+					startSector = startSector << 16;
+					GetValue(&startSector, ((LFN_End + 32) % 512) + DIR_FstClusLO, 2);
+					startSector -= 2;
+					startSector *= pSPI_SD_Struct->SecPerClus;
+					startSector += pSPI_SD_Struct->DataStartSector;
+					Serial1.println(startSector, 10);
+					pSPI_SD_Struct->dirDepth++;
+					ScanDir(startSector);
+					pSPI_SD_Struct->dirDepth--;
+				}
+			}
+			/*if(pSPI_SD_Struct->dataBuf[(i % 512) + DIR_Attr] == 0x10) {
+				for(int j = 0; j < pSPI_SD_Struct->dirDepth; j++) {
+					Serial1.print("\t");
+				}
+				Serial1.print("-");
+				
 				for(int k = 0; k < 8; k++) {
 					Serial1.printc(pSPI_SD_Struct->dataBuf[(i % 512) + k]);
 				}
-				Serial1.println("");
 				Serial1.println("");
 
 				uint32_t startSector;
@@ -282,9 +307,21 @@ void spi_sd::ScanDir(uint32_t sector) {
 
 				ReadBlock(sector + (i / 512), pSPI_SD_Struct->dataBuf);
 			}
+			else if(pSPI_SD_Struct->dataBuf[(i % 512) + DIR_Attr] == 0x20) {
+				for(int j = 0; j < pSPI_SD_Struct->dirDepth; j++) {
+					Serial1.print("\t");
+				}
+				Serial1.print("-");
+				
+				int k = 0;
+				while(pSPI_SD_Struct->dataBuf)
+				if(pSPI_SD_Struct->dataBuf[(i % 512) - 32] )
+				Serial1.println("");
+			}*/
 		}
 
 		i += 32;
+		ReadBlock(sector + (i / 512), pSPI_SD_Struct->dataBuf);
 	}
 }
 

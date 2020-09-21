@@ -89,6 +89,23 @@ typedef struct {
 	volatile uint32_t FLTR;
 } I2C_Typedef;
 
+typedef struct {
+	volatile uint32_t CR;
+	volatile uint32_t SWTRIGR;
+	volatile uint32_t DHR12R1;
+	volatile uint32_t DHR12L1;
+	volatile uint32_t DHR8R1;
+	volatile uint32_t DHR12R2;
+	volatile uint32_t DHR12L2;
+	volatile uint32_t DHR8R2;
+	volatile uint32_t DHR12RD;
+	volatile uint32_t DHR12LD;
+	volatile uint32_t DHR8RD;
+	volatile uint32_t DOR1;
+	volatile uint32_t DOR2;
+	volatile uint32_t SR;
+} DAC_Typedef;
+
 #define SPI_CR1_BIDIMODE (1 << 15)
 #define SPI_CR1_BIDIOE (1 << 14)
 #define SPI_CR1_CRCEN (1 << 13)
@@ -522,6 +539,7 @@ typedef struct {
 		#define USART2_BASE (APB1PERIPH_BASE + 0x4400)
 		#define I2C1_BASE (APB1PERIPH_BASE + 0x5400)
 		#define I2C2_BASE (APB1PERIPH_BASE + 0x5800)
+		#define DAC_BASE (APB1PERIPH_BASE + 0x7400)
 	#define APB2PERIPH_BASE (PERIPH_BASE + 0x10000)
 		#define USART1_BASE (APB2PERIPH_BASE + 0x1000)
 		#define SDIO_BASE (APB2PERIPH_BASE + 0x2C00)
@@ -556,6 +574,7 @@ typedef struct {
 #define TIM7 ((BASIC_TIM_Typedef*)(TIM7_BASE))
 #define I2C1 ((I2C_Typedef*)(I2C1_BASE))
 #define I2C2 ((I2C_Typedef*)(I2C2_BASE))
+#define DAC ((DAC_Typedef*)(DAC_BASE))
 
 #define USART1 ((USART_Typedef*)(USART1_BASE))
 #define USART2 ((USART_Typedef*)(USART2_BASE))
