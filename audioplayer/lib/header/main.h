@@ -13,6 +13,8 @@
 #include <sdio.h>
 #include <spi.h>
 #include <spi_sd.h>
+#include <dac.h>
+#include <wav_util.h>
 
 #define M_PI (atan(1)*4)
 

@@ -107,6 +107,7 @@ public:
 	template <typename T> T GetValue(T* type, uint16_t offset, uint8_t n);
 	void ScanDir(uint32_t sector);
 	void dumpBuf();
+	uint32_t SearchFile(char search_str[], uint32_t sector);
 };
 
 #endif

@@ -4,11 +4,11 @@ PROCESSOR = cortex-m3
 DEVICE = stm32f103
 COMPILE = arm-none-eabi-g++ -mthumb -mcpu=$(PROCESSOR) --std=c++11 -O2 -fno-rtti -fno-exceptions -ffunction-sections -fdata-sections
 LINK = arm-none-eabi-g++ -mthumb -mcpu=$(PROCESSOR) -T linker/$(DEVICE).ld -nostartfiles
-INC_FLAGS := -I include -I lib/header
-SRCS := $(wildcard src/*.cpp) $(wildcard lib/src/*.cpp)
-OBJS := $(patsubst src/%.cpp,build/%.o,$(SRCS))
+INC_FLAGS := -I lib/header
+SRCS := $(wildcard lib/src/*.cpp)
+OBJS := $(patsubst lib/src/%.cpp,build/%.o,$(SRCS))
 BUILD_DIR = build
-vpath %.cpp src
+vpath %.cpp lib/src
 #vpath %.cpp lib
 vpath %.bin build
 vpath %.elf build

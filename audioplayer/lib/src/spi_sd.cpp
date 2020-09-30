@@ -195,7 +195,6 @@ uint8_t spi_sd::GetPartitionData() {
 	}
 
 	ReadBlock(pSPI_SD_Struct->PT1_StartSector, pSPI_SD_Struct->dataBuf);
-	dumpBuf();
 	if(CheckBootSign()) {
 		uint32_t FATSz32;
 		GetValue(&FATSz32, BPB_FATSz32, 4);
@@ -281,43 +280,6 @@ void spi_sd::ScanDir(uint32_t sector) {
 					pSPI_SD_Struct->dirDepth--;
 				}
 			}
-			/*if(pSPI_SD_Struct->dataBuf[(i % 512) + DIR_Attr] == 0x10) {
-				for(int j = 0; j < pSPI_SD_Struct->dirDepth; j++) {
-					Serial1.print("\t");
-				}
-				Serial1.print("-");
-				
-				for(int k = 0; k < 8; k++) {
-					Serial1.printc(pSPI_SD_Struct->dataBuf[(i % 512) + k]);
-				}
-				Serial1.println("");
-
-				uint32_t startSector;
-				GetValue(&startSector, (i % 512) + DIR_FstClusHI, 2);
-				startSector = startSector << 16;
-				GetValue(&startSector, (i % 512) + DIR_FstClusLO, 2);
-
-				startSector -= 2;
-				startSector *= pSPI_SD_Struct->SecPerClus;
-				startSector += pSPI_SD_Struct->DataStartSector;
-
-				pSPI_SD_Struct->dirDepth++;
-				ScanDir(startSector);
-				pSPI_SD_Struct->dirDepth--;
-
-				ReadBlock(sector + (i / 512), pSPI_SD_Struct->dataBuf);
-			}
-			else if(pSPI_SD_Struct->dataBuf[(i % 512) + DIR_Attr] == 0x20) {
-				for(int j = 0; j < pSPI_SD_Struct->dirDepth; j++) {
-					Serial1.print("\t");
-				}
-				Serial1.print("-");
-				
-				int k = 0;
-				while(pSPI_SD_Struct->dataBuf)
-				if(pSPI_SD_Struct->dataBuf[(i % 512) - 32] )
-				Serial1.println("");
-			}*/
 		}
 
 		i += 32;
@@ -329,4 +291,133 @@ void spi_sd::dumpBuf() {
 	for(uint8_t i: pSPI_SD_Struct->dataBuf) {
 		Serial1.println(i, 16);
 	}
+}
+
+uint32_t spi_sd::SearchFile(char search_str[], uint32_t sector) {
+	int i = 0;
+	uint8_t str_index = 0;
+	char c;
+	bool match;
+	Serial1.println("searching");
+
+	ReadBlock(sector, pSPI_SD_Struct->dataBuf);
+
+	while(pSPI_SD_Struct->dataBuf[i % 512] != NULL) {
+		str_index = 0;
+
+		if(pSPI_SD_Struct->dataBuf[i % 512] != 0xE5 && pSPI_SD_Struct->dataBuf[i % 512] != 0x2E) {
+			if(pSPI_SD_Struct->dataBuf[(i % 512) + DIR_Attr] == 0x0F && (pSPI_SD_Struct->dataBuf[i % 512] & (1 << 6))) {
+				uint8_t LFN_Entries = pSPI_SD_Struct->dataBuf[i % 512] - 0x40;
+				uint32_t LFN_End = (LFN_Entries - 1) * 32 + i;
+
+				match = true;
+				for(int k = LFN_End; k > (LFN_End - (32*LFN_Entries)); k -= 32) {
+					ReadBlock(sector + (k / 512), pSPI_SD_Struct->dataBuf);
+
+					for(int j = 0; j < 5; j++) {
+						if(pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name1 + (j * 2)] != 0x00 && pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name1 + (j * 2)] != 0xFF) {
+							c = (pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name1 + (j * 2)]);
+							Serial1.printc(c);
+							if(search_str[str_index] == NULL) {
+								break;
+							}
+							else if(search_str[str_index] != c) {
+								match = false;
+								Serial1.printc(search_str[str_index]);
+								break;
+							}
+							else {
+								str_index++;
+							}
+						}
+					}
+
+					if(!match || search_str[str_index] == NULL) {
+						break;
+					}
+
+					for(int j = 0; j < 6; j++) {
+						if(pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name2 + (j * 2)] != 0x00 && pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name2 + (j * 2)] != 0xFF) {
+							c = (pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name2 + (j * 2)]);
+							Serial1.printc(c);
+							if(search_str[str_index] == NULL) {
+								break;
+							}
+							else if(search_str[str_index] != c) {
+								match = false;
+								Serial1.printc(search_str[str_index]);
+								break;
+							}
+							else {
+								str_index++;
+							}
+						}
+					}
+
+					if(!match || search_str[str_index] == NULL) {
+						break;
+					}
+
+					for(int j = 0; j < 2; j++) {
+						if(pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name3 + (j * 2)] != 0x00 && pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name3 + (j * 2)] != 0xFF) {
+							c = (pSPI_SD_Struct->dataBuf[(k % 512) + LDIR_Name3 + (j * 2)]);
+							Serial1.printc(c);
+							if(search_str[str_index] == NULL) {
+								break;
+							}
+							else if(search_str[str_index] != c) {
+								match = false;
+								Serial1.printc(search_str[str_index]);
+								break;
+							}
+							else {
+								str_index++;
+							}
+						}
+					}
+
+					if(!match || search_str[str_index] == NULL) {
+						break;
+					}
+				}
+
+				if(match) {
+					ReadBlock(sector + ((LFN_End + 32) / 512), pSPI_SD_Struct->dataBuf);
+					uint32_t startSector;
+					GetValue(&startSector, ((LFN_End + 32) % 512) + DIR_FstClusHI, 2);
+
+					startSector = startSector << 16;
+					GetValue(&startSector, ((LFN_End + 32) % 512) + DIR_FstClusLO, 2);
+					startSector -= 2;
+					startSector *= pSPI_SD_Struct->SecPerClus;
+					startSector += pSPI_SD_Struct->DataStartSector;
+					Serial1.println("MATCH");
+					return startSector;
+				}
+				else {
+					Serial1.println("no match");
+					ReadBlock(sector + ((LFN_End + 32) / 512), pSPI_SD_Struct->dataBuf);
+					if(pSPI_SD_Struct->dataBuf[((LFN_End + 32) % 512) + DIR_Attr] == 0x10) {
+						uint32_t startSector;
+						GetValue(&startSector, ((LFN_End + 32) % 512) + DIR_FstClusHI, 2);
+
+						startSector = startSector << 16;
+						GetValue(&startSector, ((LFN_End + 32) % 512) + DIR_FstClusLO, 2);
+						startSector -= 2;
+						startSector *= pSPI_SD_Struct->SecPerClus;
+						startSector += pSPI_SD_Struct->DataStartSector;
+						startSector = SearchFile(search_str, startSector);
+					 	if(startSector != 0) {
+					 		return startSector;
+					 	}
+					}
+				}
+			}
+		}
+
+		i += 32;
+		ReadBlock(sector + (i / 512), pSPI_SD_Struct->dataBuf);
+	}
+
+	return 0;
 }

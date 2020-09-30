@@ -26,6 +26,23 @@ typedef struct {
 
 } BASIC_TIM_Typedef;
 
+#define GEN_TIM_CR1_CKD 8
+#define GEN_TIM_CR1_ARPE (1 << 7)
+#define GEN_TIM_CR1_CMS 5
+#define GEN_TIM_CR1_DIR (1 << 4)
+#define GEN_TIM_CR1_OPM (1 << 3)
+#define GEN_TIM_CR1_URS (1 << 2)
+#define GEN_TIM_CR1_UDIS (1 << 1)
+#define GEN_TIM_CR1_CEN (1 << 0)
+
+#define GEN_TIM_CR2_TI1S (1 << 7)
+#define GEN_TIM_CR2_MMS 4
+#define GEN_TIM_CR2_CCDS (1 << 3)
+
+#define GEN_TIM_DIER_UIE (1 << 0)
+
+#define GEN_TIM_SR_UIF (1 << 0)
+
 typedef struct {
 	volatile uint32_t CR1;
 	volatile uint32_t CR2;
@@ -75,7 +92,6 @@ typedef struct {
 #define I2C_CCR_DUTY (1 << 14)
 #define I2C_CCR_CCR (1 << 0)
 
-
 typedef struct {
 	volatile uint32_t CR1;  //0x00
 	volatile uint32_t CR2;
@@ -88,6 +104,15 @@ typedef struct {
 	volatile uint32_t TRISE;
 	volatile uint32_t FLTR;
 } I2C_Typedef;
+
+#define DAC_CR_EN1 (1 << 0)
+#define DAC_CR_BOFF1 (1 << 1)
+#define DAC_CR_TEN1 (1 << 2)
+#define DAC_CR_TSEL1 3
+#define DAC_CR_WAVE1 6
+#define DAC_CR_MAMP 8
+#define DAC_CR_DMAEN1 12
+#define DAC_CR_DMAUDRIE 13
 
 typedef struct {
 	volatile uint32_t CR;
@@ -332,6 +357,8 @@ typedef struct {
 
 #define RCC_APB1ENR_I2C2EN (1 << 22)
 #define RCC_APB1ENR_I2C1EN (1 << 21)
+#define RCC_APB1ENR_DACEN (1 << 29)
+
 #define RCC_APB1ENR_UART5EN (1 << 20)
 #define RCC_APB1ENR_UART4EN (1 << 19)
 #define RCC_APB1ENR_USART3EN (1 << 18)
@@ -355,6 +382,7 @@ typedef struct {
 #define SPI2_CLK_EN (RCC->APB1ENR |= RCC_APB1ENR_SPI2EN)
 #define I2C2_CLK_EN (RCC->APB1ENR |= RCC_APB1ENR_I2C2EN)
 #define I2C1_CLK_EN (RCC->APB1ENR |= RCC_APB1ENR_I2C1EN)
+#define DAC_CLK_EN (RCC->APB1ENR |= RCC_APB1ENR_DACEN)
 #define TIM7_CLK_EN (RCC->APB1ENR |= RCC_APB1ENR_TIM7EN)
 #define TIM6_CLK_EN (RCC->APB1ENR |= RCC_APB1ENR_TIM6EN)
 #define TIM5_CLK_EN (RCC->APB1ENR |= RCC_APB1ENR_TIM5EN)

@@ -1,7 +1,7 @@
 #ifndef ADV_TIMER_H
 #define ADV_TIMER_H
-#include <rcc.h>
-#include <f1_gpio.h>
+#include <boards.h>
+#include <usart.h>
 
 #define OCM_Frozen 0x0
 #define OCM_Active 0x1
@@ -12,17 +12,29 @@
 #define OCM_PWM1 0x6
 #define OCM_PWM2 0x7
 
+#define MMS_RESET 0x0
+#define MMS_ENABLE 0x1
+#define MMS_UPDATE 0x2
+#define MMS_COMPARE_PULSE 0x3
+#define MMS_COMPARE_OC1 0x4
+#define MMS_COMPARE_OC2 0x5
+#define MMS_COMPARE_OC3 0x6
+#define MMS_COMPARE_OC4 0x7
+
 typedef struct {
+	GENERAL_TIM_Typedef* TIMx;
 	uint16_t CR1;
+	uint16_t CR2;
 	uint16_t DIER;
-} Adv_Timer_Config;
+	uint16_t PSC;
+	uint32_t ARR;
+} Adv_Timer_Struct;
 
 class adv_timer {
 	private:
-		GENERAL_TIM_Typedef* TIMx;
+		Adv_Timer_Struct* pStruct;
 	public:
-		void Init(GENERAL_TIM_Typedef* timx, uint16_t arr_value);
-		void Configure(Adv_Timer_Config &config);
+		void Init(Adv_Timer_Struct* pconfig);
 		void OC1_Enable(uint8_t mode);
 		void setCCR1(uint16_t ccr1);
 		void OC2_Enable(uint8_t mode);
