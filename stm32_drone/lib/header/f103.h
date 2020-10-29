@@ -10,7 +10,7 @@
 #define APB2_MAX_FREQ 72000000
 #define AHB_MAX_FREQ 72000000
 
-#define F_HSE 8000000UL
+#define F_HSE 16000000UL
 #define F_HSI 8000000UL
 
 typedef struct {
