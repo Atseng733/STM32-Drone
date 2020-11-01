@@ -8,6 +8,8 @@ int main(void) {
 	rcc_io_enable(RCC_AFIO);
 
 	timer_init();
+
+	//on-board LEDs
 	pinMode(GPIOB, 12, OUTPUT);
 	pinConfig(GPIOB, 12, GPO_PP);
 	pinMode(GPIOB, 13, OUTPUT);
@@ -21,11 +23,14 @@ int main(void) {
 	writeHigh(GPIOB, 11);
 	pinMode(GPIOA, 2, OUTPUT); //usart2 tx pin
 	pinConfig(GPIOA, 2, AFO_PP);
-	USART3_Struct.USARTx = USART3;
-	USART2_Struct.USARTx = USART2;
+	USART3_Struct.USARTx = USART3; //Receiver
+	USART2_Struct.USARTx = USART2; //Serial monitor
+	USART1_Struct.USARTx = USART1; //GPS
 	Serial3.Init(&USART3_Struct, 115200, USART_MODE_RX);
 	Serial2.Init(&USART2_Struct, 230400, USART_MODE_TX);
+	Serial1.Init(&USART1_Struct, 9600, USART_MODE_TXRX);
 	Serial3.receiveIT();
+	Serial1.receiveIT();
 	Serial2.println("Drone Startup");
 	
 	I2C.Init(I2C1, 300000);
@@ -40,7 +45,7 @@ int main(void) {
 	
 	IMU.Gyro_FS_Select(GYRO_FS_RANGE);
 	IMU.Accel_FS_Select(ACCEL_FS_RANGE);
-	
+
 	pinMode(GPIOA, 6, OUTPUT); //timer 3 channel 1-4 pins
 	pinConfig(GPIOA, 6, AFO_PP);
 	pinMode(GPIOA, 7, OUTPUT);
@@ -60,6 +65,12 @@ int main(void) {
 	
 	calibrate_gyro(2000);
 
+	//Make sure the motors don't spin immediately if the receiver is already armed on power-up
+	Get_RX_Data();
+	while(armCheck() == 1) {
+		Get_RX_Data();
+	}
+
 	TIMER3.Generate_Update();
 	TIMER3.Counter_Enable();
 	TIMER3.setCCR1(1000);
@@ -71,7 +82,53 @@ int main(void) {
 	while(1) {
 		calculate_angle_data();
 		Get_RX_Data();
-		PID_Control();
+
+		//if armed
+		if(armCheck() && !RX_OVERRIDE) {
+			//if previously armed
+			if(last_arm_state && !THROTTLE_OVERRIDE) {
+				Serial2.println(DISARM_MODE_CHANNEL, 10);
+				Serial2.println(last_arm_state, 10);
+				PID_Control();
+			}
+			//else if switching to arm from disarm
+			else {
+				//if throttle is high, don't arm
+				if(THROTTLE_CHANNEL > 1050 || THROTTLE_OVERRIDE) {
+					Serial2.println("Don't Arm");
+					THROTTLE_OVERRIDE = true;
+					last_arm_state = 0;
+				}
+				//if throttle is low, arm
+				else if(THROTTLE_CHANNEL < 1050) {
+					Serial2.println("Arming");
+					last_arm_state = 1;
+				}
+			}
+			
+		}
+		//else if disarmed
+		else {
+			//last arm state and throttle override to 0
+			last_arm_state = 0;
+			THROTTLE_OVERRIDE = false;
+
+			//stop motors
+			MOTOR_S1 = 1000;
+			MOTOR_S2 = 1000;
+			MOTOR_S3 = 1000;
+			MOTOR_S4 = 1000;
+
+			//reset PID variables
+			pitch_integrator = 0;
+			roll_integrator = 0;
+			yaw_integrator = 0;
+			prev_pitch_error = 0;
+			prev_roll_error = 0;
+			prev_yaw_error = 0;
+		}
+
+		Serial2.println("loop");
 
 		TIMER3.setCCR1(MOTOR_S1);
 		TIMER3.setCCR2(MOTOR_S2);
@@ -145,9 +202,13 @@ void calculate_angle_data() {
 	}
 }
 
+/*
+Get the values from the receiver. If no signal detected, override the motor outputs.
+*/
 void Get_RX_Data() {
 	if(Serial3.readSync(rx_data, 32, 0x20)) {
 		rx_fail_count = 0;
+		RX_OVERRIDE = false;
 
 		ch1 = rx_data[2] | (rx_data[3] << 8); //calculate receiver values
 		ch2 = rx_data[4] | (rx_data[5] << 8);
@@ -161,13 +222,17 @@ void Get_RX_Data() {
 		}
 	}
 	else {
-		if(++rx_fail_count == 3) {
+		if(++rx_fail_count >= 3) {
 			Serial2.println("RX Fail");
-			rx_fail_count = 0;
+			RX_OVERRIDE = true;
+			rx_fail_count = 3;
 		}
 	}
 }
 
+/*
+Control the motor output signals based on rotational data from the gyroscope
+*/
 void PID_Control() {
 	pitch_output = 0;
 	roll_output = 0;
@@ -226,8 +291,21 @@ void PID_Control() {
 	prev_roll_error = roll_error;
 	prev_yaw_error = yaw_error;
 
+	//Serial2.printd(pitch_angle, 1);
 	//Serial2.printd(gyro_pitch_rate, 1);
 	//Serial2.printd(yaw_output, 2);
+}
+
+//Return 1 if armed, 0 if disarmed
+uint8_t armCheck() {
+	//if in the disarm range, return 0
+	if(DISARM_MODE_CHANNEL > DISARM_ENABLE_RANGE_MIN && DISARM_MODE_CHANNEL < DISARM_ENABLE_RANGE_MAX) {
+		return 0;
+	}
+	//else if in the arm range, return 1
+	else if(DISARM_MODE_CHANNEL > DISARM_DISABLE_RANGE_MIN && DISARM_MODE_CHANNEL < DISARM_DISABLE_RANGE_MAX) {
+		return 1;
+	}
 }
 
 void Reset_Handler() {

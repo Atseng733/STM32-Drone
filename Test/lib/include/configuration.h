@@ -41,7 +41,6 @@
 #define YAW_CHANNEL ch4
 
 //Flight modes and settings
-#define DISARM_MODE_ENABLED true //arm and disarm switch
 #define DISARM_MODE_CHANNEL ch5
 #define DISARM_ENABLE_RANGE_MIN 500
 #define DISARM_ENABLE_RANGE_MAX 1500

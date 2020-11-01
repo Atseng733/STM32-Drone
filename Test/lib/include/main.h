@@ -12,6 +12,8 @@
 #include <mpu9250.h>
 #include <math.h>
 #include <mpu6050.h>
+#include <at93c66b.h>
+#include <spi.h>
 
 #define M_PI (atan(1)*4)
 
@@ -22,8 +24,11 @@ extern char _sdata;
 extern char _edata;
 
 mpu6050 IMU;
+at93c66b EEPROM;
+SPI_Struct SPI1_Struct;
 USART_Struct USART3_Struct;
 USART_Struct USART2_Struct;
+USART_Struct USART1_Struct;
 adv_timer TIMER3;
 Adv_Timer_Struct TIM3_Struct;
 
@@ -56,11 +61,15 @@ float T_MILLIS; //time between IMU measurements in milliseconds
 
 //Logic variables
 bool startup_read; //whether to use accelerometer or gyroscope measurements when calculating angle
+uint8_t last_arm_state;
+bool RX_OVERRIDE;
+bool THROTTLE_OVERRIDE;
 
 //Functions
 void calibrate_gyro(uint16_t n);
 void calculate_angle_data();
 void Get_RX_Data();
 void PID_Control();
+uint8_t armCheck();
 
 #endif

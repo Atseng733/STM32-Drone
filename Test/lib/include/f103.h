@@ -70,6 +70,51 @@ typedef struct {
 	volatile uint32_t DMAR;
 } GENERAL_TIM_Typedef;
 
+#define SPI_CR1_BIDIMODE (1 << 15)
+#define SPI_CR1_BIDIOE (1 << 14)
+#define SPI_CR1_CRCEN (1 << 13)
+#define SPI_CR1_CRCNEXT (1 << 12)
+#define SPI_CR1_DFF (1 << 11)
+#define SPI_CR1_RXONLY (1 << 10)
+#define SPI_CR1_SSM (1 << 9)
+#define SPI_CR1_SSI (1 << 8)
+#define SPI_CR1_LSBFIRST (1 << 7)
+#define SPI_CR1_SPE (1 << 6)
+#define SPI_CR1_BR 3
+#define SPI_CR1_MSTR (1 << 2)
+#define SPI_CR1_CPOL (1 << 1)
+#define SPI_CR1_CPHA (1 << 0)
+
+#define SPI_CR2_TXEIE (1 << 7)
+#define SPI_CR2_RXNEIE (1 << 6)
+#define SPI_CR2_ERRIE (1 << 5)
+#define SPI_CR2_FRF (1 << 4)
+#define SPI_CR2_SSOE (1 << 2)
+#define SPI_CR2_TXDMAEN (1 << 1)
+#define SPI_CR2_RXDMAEN (1 << 0)
+
+#define SPI_SR_FRE (1 << 8)
+#define SPI_SR_BSY (1 << 7)
+#define SPI_SR_OVR (1 << 6)
+#define SPI_SR_MODF (1 << 5)
+#define SPI_SR_CRCERR (1 << 4)
+#define SPI_SR_UDR (1 << 3)
+#define SPI_SR_CHSIDE (1 << 2)
+#define SPI_SR_TXE (1 << 1)
+#define SPI_SR_RXNE (1 << 0)
+
+typedef struct {
+	volatile uint32_t CR1;
+	volatile uint32_t CR2;
+	volatile uint32_t SR;
+	volatile uint32_t DR;
+	volatile uint32_t CRCPR;
+	volatile uint32_t RXCRCR;
+	volatile uint32_t TXCRCR;
+	volatile uint32_t I2SCFGR;
+	volatile uint32_t I2SPR;
+} SPI_Typedef;
+
 #define I2C_CR1_SWRST (1 << 15);
 #define I2C_CR1_ACK (1 << 10)
 #define I2C_CR1_STOP (1 << 9)
@@ -241,6 +286,7 @@ typedef struct {
 #define RCC_APB1RSTR_I2C1RST (1 << 21)
 
 #define RCC_APB2ENR_USART1EN (1 << 14)
+#define RCC_APB2ENR_SPI1EN (1 << 12)
 
 
 #define RCC_APB1ENR_I2C2EN (1 << 22)
@@ -257,6 +303,7 @@ typedef struct {
 #define RCC_APB1ENR_TIM2EN (1 << 0)
 
 #define USART1_CLK_EN (RCC->APB2ENR |= RCC_APB2ENR_USART1EN)
+#define SPI1_CLK_EN (RCC->APB2ENR |= RCC_APB2ENR_SPI1EN)
 
 #define USART3_CLK_EN (RCC->APB1ENR |= RCC_APB1ENR_USART3EN)
 #define USART2_CLK_EN (RCC->APB1ENR |= RCC_APB1ENR_USART2EN)
@@ -438,6 +485,7 @@ typedef struct {
 		#define I2C2_BASE (APB1PERIPH_BASE + 0x5800)
 	#define APB2PERIPH_BASE (PERIPH_BASE + 0x10000)
 		#define AFIO_BASE (APB2PERIPH_BASE + 0x0000)
+		#define SPI1_BASE (APB2PERIPH_BASE + 0x3000)
 		#define EXTI_BASE (APB2PERIPH_BASE + 0x0400)
 		#define GPIOA_BASE (APB2PERIPH_BASE + 0x0800)
 		#define GPIOB_BASE (APB2PERIPH_BASE + 0x0C00)
@@ -477,6 +525,7 @@ typedef struct {
 #define USART3 ((USART_Typedef*)(USART3_BASE))
 
 #define AFIO ((AFIO_Typedef*)(AFIO_BASE))
+#define SPI1 ((SPI_Typedef*)(SPI1_BASE))
 #define EXTI ((EXTI_Typedef*)(EXTI_BASE))
 #define GPIOA ((GPIO_Typedef*)(GPIOA_BASE))
 #define GPIOB ((GPIO_Typedef*)(GPIOB_BASE))
