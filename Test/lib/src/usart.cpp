@@ -98,6 +98,12 @@ void usart::sendIT(char* str) {
 void usart::receiveIT() {
 	USART_InterruptEnable();
 	pUSART_Struct->USARTx->CR1 |= USART_CR1_RXNEIE;
+	pUSART_Struct->USARTx->CR1 |= USART_CR1_IDLEIE;
+}
+
+void usart::receiveDMA() {
+	DMA_Struct DMA_RX;
+	DMA_RX.CCR = 0;
 }
 
 void usart::read(uint8_t* data, uint16_t len) {
@@ -155,7 +161,12 @@ void usart::USART_ISR() {
 		}
 	}
 
-
+	if(GetFlagStatus(pUSART_Struct->USARTx->CR1, USART_CR1_IDLEIE)) {
+		if(GetFlagStatus(pUSART_Struct->USARTx->SR, USART_SR_IDLE)) {
+			temp = pUSART_Struct->USARTx->DR;
+			dataReady = true;
+		}
+	}
 }
 
 void USART1_Handler() {

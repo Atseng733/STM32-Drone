@@ -23,14 +23,23 @@ int main(void) {
 	writeHigh(GPIOB, 11);
 	pinMode(GPIOA, 2, OUTPUT); //usart2 tx pin
 	pinConfig(GPIOA, 2, AFO_PP);
+	pinMode(GPIOA, 9, OUTPUT);
+	pinConfig(GPIOA, 9, AFO_PP);
+	pinMode(GPIOA, 10, INPUT); //usart1 rx pin
+	pinConfig(GPIOA, 10, INPUT_PUPD);
+	writeHigh(GPIOA, 10);
 	USART3_Struct.USARTx = USART3; //Receiver
-	USART2_Struct.USARTx = USART2; //Serial monitor
-	USART1_Struct.USARTx = USART1; //GPS
+	USART2_Struct.USARTx = USART2; //Serial
+	//USART1_Struct.USARTx = USART1; //GPS
 	Serial3.Init(&USART3_Struct, 115200, USART_MODE_RX);
 	Serial2.Init(&USART2_Struct, 230400, USART_MODE_TX);
-	Serial1.Init(&USART1_Struct, 9600, USART_MODE_TXRX);
+	//Serial1.Init(&USART1_Struct, 115200, USART_MODE_TXRX);
+
+	//Serial1.print("$PUBX,41,1,0007,0003,115200,0*18\r\n"); //115200 baud setting
+	//Serial1.print("$PUBX,41,1,0007,0003,19200,0*25\r\n"); //19200 baud setting
+	//Serial1.receiveIT(); //can't use both interrupts at the same time
 	Serial3.receiveIT();
-	Serial1.receiveIT();
+	
 	Serial2.println("Drone Startup");
 	
 	I2C.Init(I2C1, 300000);
@@ -45,7 +54,7 @@ int main(void) {
 	
 	IMU.Gyro_FS_Select(GYRO_FS_RANGE);
 	IMU.Accel_FS_Select(ACCEL_FS_RANGE);
-
+	
 	pinMode(GPIOA, 6, OUTPUT); //timer 3 channel 1-4 pins
 	pinConfig(GPIOA, 6, AFO_PP);
 	pinMode(GPIOA, 7, OUTPUT);
@@ -64,12 +73,20 @@ int main(void) {
 	TIMER3.OC4_Enable(OCM_PWM1);
 	
 	calibrate_gyro(2000);
-
+	
 	//Make sure the motors don't spin immediately if the receiver is already armed on power-up
 	Get_RX_Data();
 	while(armCheck() == 1) {
 		Get_RX_Data();
 	}
+
+	RCC->CSR |= 1; //enable LSI clock
+	while(!(RCC->CSR & (1 << 1)));
+	Serial2.println("LSI enabled");
+	IWDG->KR = 0x5555; //Enable PR and RLR registers
+	IWDG->PR = 0x0000; //0 prescaler
+	//IWDG->RLR = 1000; 
+	IWDG->KR = 0xCCCC;
 
 	TIMER3.Generate_Update();
 	TIMER3.Counter_Enable();
@@ -82,13 +99,12 @@ int main(void) {
 	while(1) {
 		calculate_angle_data();
 		Get_RX_Data();
+		IWDG->KR = 0xAAAA;
 
 		//if armed
 		if(armCheck() && !RX_OVERRIDE) {
 			//if previously armed
 			if(last_arm_state && !THROTTLE_OVERRIDE) {
-				Serial2.println(DISARM_MODE_CHANNEL, 10);
-				Serial2.println(last_arm_state, 10);
 				PID_Control();
 			}
 			//else if switching to arm from disarm
@@ -96,6 +112,7 @@ int main(void) {
 				//if throttle is high, don't arm
 				if(THROTTLE_CHANNEL > 1050 || THROTTLE_OVERRIDE) {
 					Serial2.println("Don't Arm");
+					Serial2.println(THROTTLE_CHANNEL, 10);
 					THROTTLE_OVERRIDE = true;
 					last_arm_state = 0;
 				}
@@ -128,8 +145,6 @@ int main(void) {
 			prev_yaw_error = 0;
 		}
 
-		Serial2.println("loop");
-
 		TIMER3.setCCR1(MOTOR_S1);
 		TIMER3.setCCR2(MOTOR_S2);
 		TIMER3.setCCR3(MOTOR_S3);
@@ -150,6 +165,7 @@ void calibrate_gyro(uint16_t n) {
 
 	for(int i = 0; i < n; i++) {
 		IMU.Read_Gyro_Data(gyro_data);
+		Serial2.println("Test");
 		gyro_x_cal += gyro_data[0];
 		gyro_y_cal += gyro_data[1];
 		gyro_z_cal += gyro_data[2];
@@ -169,8 +185,8 @@ void calculate_angle_data() {
 	gyro_data[2] -= gyro_z_cal;
 
 	gyro_pitch_rate = (gyro_pitch_rate * 0.7) + ((gyro_data[0] / GYRO_OUTPUT_DIV) * 0.3);
-	gyro_roll_rate = (gyro_roll_rate * 0.7) + ((gyro_data[1] / GYRO_OUTPUT_DIV) * .3);
-	gyro_yaw_rate = (gyro_yaw_rate * 0.7) + ((gyro_data[2] / GYRO_OUTPUT_DIV) * .3);
+	gyro_roll_rate = (gyro_roll_rate * 0.7) + ((gyro_data[1] / GYRO_OUTPUT_DIV) * 0.3);
+	gyro_yaw_rate = (gyro_yaw_rate * 0.7) + ((gyro_data[2] / GYRO_OUTPUT_DIV) * 0.3);
 
 	pitch_angle += (gyro_pitch_rate / REFRESH_RATE);
 	roll_angle += (gyro_roll_rate / REFRESH_RATE);
@@ -195,8 +211,8 @@ void calculate_angle_data() {
 		startup_read = true;
 	}
 
-	if(0) {
-		Serial2.printd(pitch_angle, 1);
+	if(1) {
+		//Serial2.printd(1.0, 1);
 		//Serial2.printd(roll_angle, 1);
 		//Serial2.printd(yaw_angle, 1);
 	}
@@ -222,10 +238,10 @@ void Get_RX_Data() {
 		}
 	}
 	else {
-		if(++rx_fail_count >= 3) {
-			Serial2.println("RX Fail");
+		if(++rx_fail_count == 3) {
+			//Serial2.println("RX Fail");
+			rx_fail_count = 0;
 			RX_OVERRIDE = true;
-			rx_fail_count = 3;
 		}
 	}
 }
@@ -243,6 +259,8 @@ void PID_Control() {
 	pitch_setpoint = (PITCH_CHANNEL - 1500) / 16;
 	roll_setpoint = (ROLL_CHANNEL - 1500) / 16;
 	yaw_setpoint = (YAW_CHANNEL - 1500) / 16;
+
+	Serial2.println((int32_t)yaw_setpoint, 10);
 	
 	/*
 	error
@@ -293,7 +311,7 @@ void PID_Control() {
 
 	//Serial2.printd(pitch_angle, 1);
 	//Serial2.printd(gyro_pitch_rate, 1);
-	//Serial2.printd(yaw_output, 2);
+	//Serial2.printd(yaw_output, 1);
 }
 
 //Return 1 if armed, 0 if disarmed

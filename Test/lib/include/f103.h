@@ -70,6 +70,13 @@ typedef struct {
 	volatile uint32_t DMAR;
 } GENERAL_TIM_Typedef;
 
+typedef struct {
+	volatile uint32_t KR;
+	volatile uint32_t PR;
+	volatile uint32_t RLR;
+	volatile uint32_t SR;
+} IWDG_Typedef;
+
 #define SPI_CR1_BIDIMODE (1 << 15)
 #define SPI_CR1_BIDIOE (1 << 14)
 #define SPI_CR1_CRCEN (1 << 13)
@@ -210,6 +217,8 @@ typedef struct
 	volatile uint32_t BRR;
 	volatile uint32_t LCKR;    //0x20
 } GPIO_Typedef;
+
+#define DMA_CCR_EN (1 << 0)
 
 typedef struct {
 	volatile uint32_t ISR;
@@ -479,6 +488,7 @@ typedef struct {
 		#define TIM5_BASE (APB1PERIPH_BASE + 0x0C00)
 		#define TIM6_BASE (APB1PERIPH_BASE + 0x1000)
 		#define TIM7_BASE (APB1PERIPH_BASE + 0x1400)
+		#define IWDG_BASE (APB1PERIPH_BASE + 0x3000)
 		#define USART2_BASE (APB1PERIPH_BASE + 0x4400)
 		#define USART3_BASE (APB1PERIPH_BASE + 0x4800)
 		#define I2C1_BASE (APB1PERIPH_BASE + 0x5400)
@@ -517,6 +527,7 @@ typedef struct {
 #define TIM5 ((GENERAL_TIM_Typedef*)(TIM5_BASE))
 #define TIM6 ((BASIC_TIM_Typedef*)(TIM6_BASE))
 #define TIM7 ((BASIC_TIM_Typedef*)(TIM7_BASE))
+#define IWDG ((IWDG_Typedef*)(IWDG_BASE))
 #define I2C1 ((I2C_Typedef*)(I2C1_BASE))
 #define I2C2 ((I2C_Typedef*)(I2C2_BASE))
 
@@ -531,6 +542,9 @@ typedef struct {
 #define GPIOB ((GPIO_Typedef*)(GPIOB_BASE))
 #define GPIOC ((GPIO_Typedef*)(GPIOC_BASE))
 #define GPIOD ((GPIO_Typedef*)(GPIOD_BASE))
+
+#define DMA1 ((DMA_Typedef*)(DMA1_BASE))
+#define DMA2 ((DMA_Typedef*)(DMA2_BASE))
 #define RCC ((RCC_Typedef*)(RCC_BASE))
 #define FLASH ((FLASH_Typedef*)(FLASH_BASE))
 

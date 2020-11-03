@@ -5,6 +5,7 @@
 #include <stm32_stdlib.h>
 #include <rcc.h>
 #include <interrupt.h>
+#include <dma.h>
 
 #define USARTDIV(baud, f_cpu) ((double)f_cpu / (16 * baud))
 #define BRR_MANTISSA(usartdiv) ((uint16_t)(usartdiv))
@@ -42,6 +43,7 @@ class usart {
 		void printd(double d, uint8_t prec);
 		void sendIT(char* str);
 		void receiveIT();
+		void receiveDMA();
 		void read(uint8_t* data, uint16_t len);
 		uint8_t readSync(uint8_t* data, uint16_t len, uint8_t syncByte);
 		void USART_ISR();

@@ -13,10 +13,10 @@ uint16_t at93c66b::Read(uint8_t addr) {
     uint16_t temp = (((0b110 << 8) | addr) << 5);
 
     //manually toggle CS
-    if(pSPI_Struct->SPIx == SPI1) {
-        writeLow(GPIOA, 4);
-        writeHigh(GPIOA, 4);
-    }
+    // if(pSPI_Struct->SPIx == SPI1) {
+    //     writeLow(GPIOA, 4);
+    //     writeHigh(GPIOA, 4);
+    // }
 
     //send start bit, opcode, and read address
     SPI_Tx(pSPI_Struct, 0xFFFF);
