@@ -1,6 +1,13 @@
 #include <main.h>
 
 int main(void) {
+	//watchdog setup
+	RCC->CSR |= 1; //enable LSI clock
+	while(!(RCC->CSR & (1 << 1)));
+	IWDG->KR = 0x5555; //Enable PR and RLR registers
+	IWDG->PR = 0x0002; //0 prescaler
+	IWDG->KR = 0xCCCC;
+
 	rcc_sys_clk_setup();
 	rcc_io_enable(RCC_GPIOA);
 	rcc_io_enable(RCC_GPIOB);
@@ -23,11 +30,11 @@ int main(void) {
 	writeHigh(GPIOB, 11);
 	pinMode(GPIOA, 2, OUTPUT); //usart2 tx pin
 	pinConfig(GPIOA, 2, AFO_PP);
-	pinMode(GPIOA, 9, OUTPUT);
-	pinConfig(GPIOA, 9, AFO_PP);
-	pinMode(GPIOA, 10, INPUT); //usart1 rx pin
-	pinConfig(GPIOA, 10, INPUT_PUPD);
-	writeHigh(GPIOA, 10);
+	//pinMode(GPIOA, 9, OUTPUT);
+	//pinConfig(GPIOA, 9, AFO_PP);
+	//pinMode(GPIOA, 10, INPUT); //usart1 rx pin
+	//pinConfig(GPIOA, 10, INPUT_PUPD);
+	//writeHigh(GPIOA, 10);
 	USART3_Struct.USARTx = USART3; //Receiver
 	USART2_Struct.USARTx = USART2; //Serial
 	//USART1_Struct.USARTx = USART1; //GPS
@@ -43,7 +50,7 @@ int main(void) {
 	Serial2.println("Drone Startup");
 	
 	I2C.Init(I2C1, 300000);
-
+	
 	if(IMU.Init(0x68) == 0x68) {
 		Serial2.println("IMU working");
 	}
@@ -78,15 +85,8 @@ int main(void) {
 	Get_RX_Data();
 	while(armCheck() == 1) {
 		Get_RX_Data();
+		IWDG->KR = 0xAAAA;
 	}
-
-	RCC->CSR |= 1; //enable LSI clock
-	while(!(RCC->CSR & (1 << 1)));
-	Serial2.println("LSI enabled");
-	IWDG->KR = 0x5555; //Enable PR and RLR registers
-	IWDG->PR = 0x0000; //0 prescaler
-	//IWDG->RLR = 1000; 
-	IWDG->KR = 0xCCCC;
 
 	TIMER3.Generate_Update();
 	TIMER3.Counter_Enable();

@@ -5,8 +5,9 @@ mpu6050::mpu6050() {
 
 uint8_t mpu6050::Init(uint8_t gyro_addr) {
     addr = gyro_addr;
+    Serial2.println("Test");
     I2C.Write(addr, PWR_MGMT_1, 0x00); //reset all registers to default values
-
+   
     return I2C.Read(addr, WHO_AM_I);
 }
 

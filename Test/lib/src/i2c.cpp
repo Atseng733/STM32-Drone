@@ -70,7 +70,7 @@ void i2c::Init(I2C_Typedef* i2cx, uint32_t i2c_speed) {
 	}
 
 	I2Cx->CR1 |= I2C_CR1_SWRST;
-	delay_ms(2);
+	delay_ms(5);
 	I2Cx->CR1 &= ~I2C_CR1_SWRST;
 
 	I2Cx->CR2 = (APB1_CLK/1000000); 	  //set peripheral clock (in MHz)
@@ -78,7 +78,6 @@ void i2c::Init(I2C_Typedef* i2cx, uint32_t i2c_speed) {
 	I2Cx->CCR |= I2C_CCR_VALUE(i2c_speed);	  //set bus speed
 	I2Cx->TRISE |= I2C_TRISE_VALUE; //set max rise time
 	I2Cx->CR1 |= I2C_CR1_PE; //enable i2c
-	I2Cx->CR1 |= I2C_CR1_ACK;   //enable acknowledge
 }
 
 uint8_t i2c::GetFlagStatus(uint32_t reg, uint32_t flag) {
@@ -88,7 +87,7 @@ uint8_t i2c::GetFlagStatus(uint32_t reg, uint32_t flag) {
 void i2c::Write(uint8_t slaAddr, uint8_t regAddr, uint8_t data) {
 	Start();
 	while(!GetFlagStatus(I2Cx->SR1, I2C_SR1_SB));
-
+	
 	SendAddrW(slaAddr);
 	while(!GetFlagStatus(I2Cx->SR1, I2C_SR1_ADDR));
 	ClearAddrFlag();
@@ -100,7 +99,7 @@ void i2c::Write(uint8_t slaAddr, uint8_t regAddr, uint8_t data) {
 	I2Cx->DR = data;
 
 	while(!GetFlagStatus(I2Cx->SR1, I2C_SR1_BTF));
-
+	
 	Stop();
 }
 
