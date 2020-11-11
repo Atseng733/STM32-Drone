@@ -1,13 +1,6 @@
 #include <main.h>
 
 int main(void) {
-	//watchdog setup
-	RCC->CSR |= 1; //enable LSI clock
-	while(!(RCC->CSR & (1 << 1)));
-	IWDG->KR = 0x5555; //Enable PR and RLR registers
-	IWDG->PR = 0x0002; //0 prescaler
-	IWDG->KR = 0xCCCC;
-
 	rcc_sys_clk_setup();
 	rcc_io_enable(RCC_GPIOA);
 	rcc_io_enable(RCC_GPIOB);
@@ -80,6 +73,13 @@ int main(void) {
 	TIMER3.OC4_Enable(OCM_PWM1);
 	
 	calibrate_gyro(2000);
+
+	//watchdog setup
+	RCC->CSR |= 1; //enable LSI clock
+	while(!(RCC->CSR & (1 << 1)));
+	IWDG->KR = 0x5555; //Enable PR and RLR registers
+	IWDG->PR = 0x0002; //0 prescaler
+	IWDG->KR = 0xCCCC;
 	
 	//Make sure the motors don't spin immediately if the receiver is already armed on power-up
 	Get_RX_Data();
@@ -95,14 +95,23 @@ int main(void) {
 	TIMER3.setCCR3(1000);
 	TIMER3.setCCR4(1000);
 
+	Serial2.println("Starting");
+
 	loop_timer = millis();
 	while(1) {
 		calculate_angle_data();
 		Get_RX_Data();
 		IWDG->KR = 0xAAAA;
 
+		//set to 1 to calibrate ESCs
+		if(0) {
+			MOTOR_S1 = THROTTLE_CHANNEL;
+			MOTOR_S2 = THROTTLE_CHANNEL;
+			MOTOR_S3 = THROTTLE_CHANNEL;
+			MOTOR_S4 = THROTTLE_CHANNEL;
+		}
 		//if armed
-		if(armCheck() && !RX_OVERRIDE) {
+		else if(armCheck() && !RX_OVERRIDE) {
 			//if previously armed
 			if(last_arm_state && !THROTTLE_OVERRIDE) {
 				PID_Control();
@@ -165,15 +174,16 @@ void calibrate_gyro(uint16_t n) {
 
 	for(int i = 0; i < n; i++) {
 		IMU.Read_Gyro_Data(gyro_data);
-		Serial2.println("Test");
 		gyro_x_cal += gyro_data[0];
 		gyro_y_cal += gyro_data[1];
 		gyro_z_cal += gyro_data[2];
+		delay_ms(1);
 	}
-
+	
 	gyro_x_cal /= n;
 	gyro_y_cal /= n;
 	gyro_z_cal /= n;
+	Serial2.println("Calibration Complete");
 }
 
 void calculate_angle_data() {
@@ -259,8 +269,6 @@ void PID_Control() {
 	pitch_setpoint = (PITCH_CHANNEL - 1500) / 16;
 	roll_setpoint = (ROLL_CHANNEL - 1500) / 16;
 	yaw_setpoint = (YAW_CHANNEL - 1500) / 16;
-
-	Serial2.println((int32_t)yaw_setpoint, 10);
 	
 	/*
 	error
@@ -349,30 +357,21 @@ void Reset_Handler() {
 
 void HardFault_Handler() {
 	while(1) {
-		for(int i = 0; i < 3; i++) {
-			toggle(GPIOB, 12);
-			delay_ms(250);
-		}
+		Serial2.println("HF");
 		delay_ms(1000);
 	}
 }
 
 void MemManage_Handler() {
 	while(1) {
-		for(int i = 0; i < 3; i++) {
-			toggle(GPIOB, 12);
-			delay_ms(250);
-		}
+		Serial2.println("MM");
 		delay_ms(1000);
 	}
 }
 
 void BusFault_Handler() {
 	while(1) {
-		for(int i = 0; i < 3; i++) {
-			toggle(GPIOB, 12);
-			delay_ms(250);
-		}
+		Serial2.println("BF");
 		delay_ms(1000);
 	}
 }
