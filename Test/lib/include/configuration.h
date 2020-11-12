@@ -16,14 +16,16 @@
 //Motor limits
 #define MIN_MOTOR_OUTPUT 1100
 #define MAX_MOTOR_OUTPUT 1900
+#define MAX_INTEGRATOR 100
+#define MIN_INTEGRATOR -100
 
 //PID gain values
-#define PITCH_KP 2
-#define ROLL_KP 2
-#define YAW_KP 3
-#define PITCH_KI 0
-#define ROLL_KI 0
-#define YAW_KI .02
+#define PITCH_KP 4
+#define ROLL_KP 4
+#define YAW_KP 5
+#define PITCH_KI 2
+#define ROLL_KI 2
+#define YAW_KI 1
 #define PITCH_KD 20
 #define ROLL_KD 20
 #define YAW_KD 0

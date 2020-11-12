@@ -71,6 +71,8 @@ int main(void) {
 	TIMER3.OC2_Enable(OCM_PWM1);
 	TIMER3.OC3_Enable(OCM_PWM1);
 	TIMER3.OC4_Enable(OCM_PWM1);
+	
+	
 
 	//watchdog setup
 	RCC->CSR |= 1; //enable LSI clock
@@ -85,9 +87,7 @@ int main(void) {
 		Get_RX_Data();
 		IWDG->KR = 0xAAAA;
 	}
-
 	calibrate_gyro(2000);
-
 	TIMER3.Generate_Update();
 	TIMER3.Counter_Enable();
 	TIMER3.setCCR1(1000);
@@ -152,6 +152,10 @@ int main(void) {
 			prev_pitch_error = 0;
 			prev_roll_error = 0;
 			prev_yaw_error = 0;
+
+			gyro_pitch_rate = 0;
+			gyro_roll_rate = 0;
+			gyro_yaw_rate = 0;
 		}
 
 		TIMER3.setCCR1(MOTOR_S1);
@@ -178,6 +182,7 @@ void calibrate_gyro(uint16_t n) {
 		gyro_y_cal += gyro_data[1];
 		gyro_z_cal += gyro_data[2];
 		delay_ms(1);
+		IWDG->KR = 0xAAAA;
 	}
 	
 	gyro_x_cal /= n;
@@ -221,7 +226,7 @@ void calculate_angle_data() {
 		startup_read = true;
 	}
 
-	if(1) {
+	if(0) {
 		//Serial2.printd(1.0, 1);
 		//Serial2.printd(roll_angle, 1);
 		//Serial2.printd(yaw_angle, 1);
@@ -244,7 +249,7 @@ void Get_RX_Data() {
 		ch6 = rx_data[12] | (rx_data[13] << 8);
 
 		//Print values for trimming
-		if(1) {
+		if(0) {
 			Serial2.println(ch1, 10);
 			Serial2.println(ch2, 10);
 			Serial2.println(ch3, 10);
@@ -280,7 +285,7 @@ void PID_Control() {
 	*/
 	pitch_error = pitch_setpoint - (-gyro_pitch_rate);
 	roll_error = roll_setpoint - gyro_roll_rate;
-	yaw_error = yaw_setpoint - gyro_yaw_rate;
+	yaw_error = yaw_setpoint - (-gyro_yaw_rate);
 
 	//proportional
 	pitch_output += PITCH_KP * pitch_error;
@@ -294,6 +299,14 @@ void PID_Control() {
 	roll_output += roll_integrator;
 	yaw_integrator = yaw_integrator + (.5f * YAW_KI * (1 / REFRESH_RATE) * (yaw_error + prev_yaw_error));
 	yaw_output += yaw_integrator;
+
+	//integrator clamping
+	if(pitch_integrator < MIN_INTEGRATOR) pitch_integrator = MIN_INTEGRATOR;
+	else if(pitch_integrator > MAX_INTEGRATOR) pitch_integrator = MAX_INTEGRATOR;
+	if(roll_integrator < MIN_INTEGRATOR) roll_integrator = MIN_INTEGRATOR;
+	else if(roll_integrator > MAX_INTEGRATOR) roll_integrator = MAX_INTEGRATOR;
+	if(yaw_integrator < MIN_INTEGRATOR) yaw_integrator = MIN_INTEGRATOR;
+	else if(yaw_integrator > MAX_INTEGRATOR) yaw_integrator = MAX_INTEGRATOR;
 
 	//derivative
 	pitch_output += PITCH_KD * (pitch_error - prev_pitch_error);
