@@ -292,15 +292,11 @@ void PID_Control() {
 	roll_output += ROLL_KP * roll_error;
 	yaw_output += YAW_KP * yaw_error;
 
-	//integral
+	//integral and integrator clamping
 	pitch_integrator = pitch_integrator + (.5f * PITCH_KI * (1 / REFRESH_RATE) * (pitch_error + prev_pitch_error));
-	pitch_output += pitch_integrator;
 	roll_integrator = roll_integrator + (.5f * ROLL_KI * (1 / REFRESH_RATE) * (roll_error + prev_roll_error));
-	roll_output += roll_integrator;
 	yaw_integrator = yaw_integrator + (.5f * YAW_KI * (1 / REFRESH_RATE) * (yaw_error + prev_yaw_error));
-	yaw_output += yaw_integrator;
-
-	//integrator clamping
+	
 	if(pitch_integrator < MIN_INTEGRATOR) pitch_integrator = MIN_INTEGRATOR;
 	else if(pitch_integrator > MAX_INTEGRATOR) pitch_integrator = MAX_INTEGRATOR;
 	if(roll_integrator < MIN_INTEGRATOR) roll_integrator = MIN_INTEGRATOR;
@@ -308,6 +304,10 @@ void PID_Control() {
 	if(yaw_integrator < MIN_INTEGRATOR) yaw_integrator = MIN_INTEGRATOR;
 	else if(yaw_integrator > MAX_INTEGRATOR) yaw_integrator = MAX_INTEGRATOR;
 
+	pitch_output += pitch_integrator;
+	roll_output += roll_integrator;
+	yaw_output += yaw_integrator;
+	
 	//derivative
 	pitch_output += PITCH_KD * (pitch_error - prev_pitch_error);
 	roll_output += ROLL_KD * (roll_error - prev_roll_error);
