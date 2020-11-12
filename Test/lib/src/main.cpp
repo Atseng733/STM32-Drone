@@ -71,8 +71,6 @@ int main(void) {
 	TIMER3.OC2_Enable(OCM_PWM1);
 	TIMER3.OC3_Enable(OCM_PWM1);
 	TIMER3.OC4_Enable(OCM_PWM1);
-	
-	calibrate_gyro(2000);
 
 	//watchdog setup
 	RCC->CSR |= 1; //enable LSI clock
@@ -87,6 +85,8 @@ int main(void) {
 		Get_RX_Data();
 		IWDG->KR = 0xAAAA;
 	}
+
+	calibrate_gyro(2000);
 
 	TIMER3.Generate_Update();
 	TIMER3.Counter_Enable();
@@ -243,8 +243,12 @@ void Get_RX_Data() {
 		ch5 = rx_data[10] | (rx_data[11] << 8);
 		ch6 = rx_data[12] | (rx_data[13] << 8);
 
-		if(0) {
+		//Print values for trimming
+		if(1) {
 			Serial2.println(ch1, 10);
+			Serial2.println(ch2, 10);
+			Serial2.println(ch3, 10);
+			Serial2.println(ch4, 10);
 		}
 	}
 	else {
@@ -265,10 +269,10 @@ void PID_Control() {
 	yaw_output = 0;
 
 	//compare the receiver input to the gyroscope angular rates
-	//max angular rate is 500/16 = 31.25 deg
-	pitch_setpoint = (PITCH_CHANNEL - 1500) / 16;
-	roll_setpoint = (ROLL_CHANNEL - 1500) / 16;
-	yaw_setpoint = (YAW_CHANNEL - 1500) / 16;
+	//max angular rate is 500/16 = 125 deg
+	if(PITCH_CHANNEL < 1492 || PITCH_CHANNEL > 1508) pitch_setpoint = (PITCH_CHANNEL - 1500) / 4;
+	if(ROLL_CHANNEL < 1492 || ROLL_CHANNEL > 1508) roll_setpoint = (ROLL_CHANNEL - 1500) / 4;
+	if(YAW_CHANNEL < 1492 || YAW_CHANNEL > 1508) yaw_setpoint = (YAW_CHANNEL - 1500) / 4;
 	
 	/*
 	error
@@ -281,7 +285,7 @@ void PID_Control() {
 	//proportional
 	pitch_output += PITCH_KP * pitch_error;
 	roll_output += ROLL_KP * roll_error;
-	yaw_error += YAW_KP * yaw_error;
+	yaw_output += YAW_KP * yaw_error;
 
 	//integral
 	pitch_integrator = pitch_integrator + (.5f * PITCH_KI * (1 / REFRESH_RATE) * (pitch_error + prev_pitch_error));
