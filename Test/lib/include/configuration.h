@@ -23,9 +23,9 @@
 #define PITCH_KP 4
 #define ROLL_KP 4
 #define YAW_KP 5
-#define PITCH_KI 0
-#define ROLL_KI 0
-#define YAW_KI 0
+#define PITCH_KI 2
+#define ROLL_KI 2
+#define YAW_KI 3
 #define PITCH_KD 20
 #define ROLL_KD 20
 #define YAW_KD 0

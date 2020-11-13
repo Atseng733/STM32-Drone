@@ -124,11 +124,19 @@ int main(void) {
 					Serial2.println(THROTTLE_CHANNEL, 10);
 					THROTTLE_OVERRIDE = true;
 					last_arm_state = 0;
+					MOTOR_S1 = 1000;
+					MOTOR_S2 = 1000;
+					MOTOR_S3 = 1000;
+					MOTOR_S4 = 1000;
 				}
 				//if throttle is low, arm
 				else if(THROTTLE_CHANNEL < 1050) {
 					Serial2.println("Arming");
 					last_arm_state = 1;
+					MOTOR_S1 = 1000;
+					MOTOR_S2 = 1000;
+					MOTOR_S3 = 1000;
+					MOTOR_S4 = 1000;			
 				}
 			}
 			
