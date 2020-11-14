@@ -1,3 +1,0 @@
-WIP
-
-This is my signal generator project which involves using an AD9833 waveform generating IC and an atmega328 to control peripherals to generate a sine, triangle, or square wave up to a frequency of 20MHz.
