@@ -28,7 +28,7 @@ at93c66b EEPROM;
 SPI_Struct SPI1_Struct;
 USART_Struct USART3_Struct;
 USART_Struct USART2_Struct;
-USART_Struct USART1_Struct;
+//USART_Struct USART1_Struct;
 adv_timer TIMER3;
 Adv_Timer_Struct TIM3_Struct;
 

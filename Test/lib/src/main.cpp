@@ -103,6 +103,7 @@ int main(void) {
 		Get_RX_Data();
 		IWDG->KR = 0xAAAA;
 
+		while(millis() - loop_timer < 3);
 		//set to 1 to calibrate ESCs
 		if(0) {
 			MOTOR_S1 = THROTTLE_CHANNEL;
@@ -120,15 +121,24 @@ int main(void) {
 			else {
 				//if throttle is high, don't arm
 				if(THROTTLE_CHANNEL > 1050 || THROTTLE_OVERRIDE) {
-					Serial2.println("Don't Arm");
 					Serial2.println(THROTTLE_CHANNEL, 10);
 					THROTTLE_OVERRIDE = true;
 					last_arm_state = 0;
+
+					MOTOR_S1 = 1000;
+					MOTOR_S2 = 1000;
+					MOTOR_S3 = 1000;
+					MOTOR_S4 = 1000;
 				}
 				//if throttle is low, arm
 				else if(THROTTLE_CHANNEL < 1050) {
-					Serial2.println("Arming");
+					//Serial2.println("Arming");
 					last_arm_state = 1;
+					
+					MOTOR_S1 = 1000;
+					MOTOR_S2 = 1000;
+					MOTOR_S3 = 1000;
+					MOTOR_S4 = 1000;
 				}
 			}
 			
@@ -276,8 +286,11 @@ void PID_Control() {
 	//compare the receiver input to the gyroscope angular rates
 	//max angular rate is 500/16 = 125 deg
 	if(PITCH_CHANNEL < 1492 || PITCH_CHANNEL > 1508) pitch_setpoint = (PITCH_CHANNEL - 1500) / 4;
+	else pitch_setpoint = 0;
 	if(ROLL_CHANNEL < 1492 || ROLL_CHANNEL > 1508) roll_setpoint = (ROLL_CHANNEL - 1500) / 4;
+	else roll_setpoint = 0;
 	if(YAW_CHANNEL < 1492 || YAW_CHANNEL > 1508) yaw_setpoint = (YAW_CHANNEL - 1500) / 4;
+	else yaw_setpoint = 0;
 	
 	/*
 	error
@@ -285,7 +298,7 @@ void PID_Control() {
 	*/
 	pitch_error = pitch_setpoint - (-gyro_pitch_rate);
 	roll_error = roll_setpoint - gyro_roll_rate;
-	yaw_error = yaw_setpoint - (-gyro_yaw_rate);
+	yaw_error = yaw_setpoint - gyro_yaw_rate;
 
 	//proportional
 	pitch_output += PITCH_KP * pitch_error;
